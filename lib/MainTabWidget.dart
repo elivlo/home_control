@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
 import 'package:home_control/subPages/pageNewDevice.dart';
 
@@ -13,11 +14,18 @@ class _MainTabsState extends State<MainTabs>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
 
-  List<Widget> firstList = [
-    SwitchButton(key: UniqueKey(), name: "Eins Licht"),
-    SwitchButton(key: UniqueKey(),name: "Zwei"),
-    SwitchButton(key: UniqueKey(),name: "Drei"),
-    SwitchButton(key: UniqueKey(),name: "Vier")
+  List<DeviceControl> firstList = [
+    SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
+    SimpleSwitch(key: UniqueKey(),name: "Zwei"),
+    SimpleSwitch(key: UniqueKey(),name: "Drei"),
+    SimpleSwitch(key: UniqueKey(),name: "Vier")
+  ];
+
+  List<DeviceControl> secondList = [
+    SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
+    SimpleSwitch(key: UniqueKey(),name: "Zwei"),
+    SimpleSwitch(key: UniqueKey(),name: "Drei"),
+    SimpleSwitch(key: UniqueKey(),name: "Vier")
   ];
 
   @override
@@ -63,7 +71,7 @@ class _MainTabsState extends State<MainTabs>
             ),
             ReorderableListView(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
-              children: firstList,
+              children: secondList,
               onReorder: _reorderFirstList,
             ),
             Icon(Icons.settings),
@@ -92,7 +100,7 @@ class _MainTabsState extends State<MainTabs>
           Navigator.push(
               context,
               MaterialPageRoute(builder: (BuildContext context) {
-                return NewDevicePage(_tabController.index);
+                return NewDevicePage(_tabController.index, _addControlItem);
               }));
         },
       );
@@ -106,6 +114,16 @@ class _MainTabsState extends State<MainTabs>
         newIndex -= 1;
       }
       firstList.insert(newIndex, tmp);
+    });
+  }
+
+  void _addControlItem(int page, DeviceControl d) {
+    setState(() {
+      if (page == 0) {
+        firstList.add(d);
+      } else {
+        secondList.add(d);
+      }
     });
   }
 }

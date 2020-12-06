@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:home_control/communication/sonoffMinFirmware.dart';
+import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
-class SwitchButton extends StatefulWidget {
-  SwitchButton({Key key, this.name}) : super(key: key);
+class SimpleSwitch extends DeviceControl {
+  SimpleSwitch({Key key, String name, hostname, this.tasmota}) : super(key: key, name: name, hostname: hostname);
 
-  final String name;
+  final bool tasmota;
 
   @override
-  _SwitchButtonState createState() => _SwitchButtonState();
-}
+  SwitchButtonState createState() {
+    return SwitchButtonState();
+  }
 
-class SwitchButtonConfig extends StatefulWidget {
   @override
-  _SwitchButtonConfigState createState() => _SwitchButtonConfigState();
+  String getDeviceName() {
+    return "Simple Switch";
+  }
 }
 
-class _SwitchButtonState extends State<SwitchButton> {
+class SwitchButtonState extends State<SimpleSwitch> {
   bool state = false;
 
   getState(bool s) {
@@ -23,6 +27,17 @@ class _SwitchButtonState extends State<SwitchButton> {
 
   @override
   Widget build(BuildContext context) {
+    SonoffMinFirmware server = SonoffMinFirmware(widget.hostname, 80);
+
+    _makeRequest(bool b) async {
+      var resp = await server.setState(b);
+      setState(() {
+        if (resp != null) {
+          state = resp;
+        }
+      });
+    }
+
     return Container(
         padding: const EdgeInsets.only(bottom: 20),
         height: 67,
@@ -55,11 +70,7 @@ class _SwitchButtonState extends State<SwitchButton> {
             Switch(
               value: state,
               activeColor: Colors.amber,
-              onChanged: (bool b){
-                setState(() {
-                  state = b;
-                });
-              },
+              onChanged: _makeRequest,
             ),
           ],
         )
@@ -67,55 +78,80 @@ class _SwitchButtonState extends State<SwitchButton> {
   }
 }
 
-class _SwitchButtonConfigState extends State<SwitchButtonConfig> {
-  bool state = false;
+class SimpleSwitchConfig extends DeviceConfig {
+  SimpleSwitchConfig({Key key, addItem}) : super(key: key, addItem: addItem);
 
-  getState(bool s) {
-    return s ? "On" : "Off";
+  @override
+  SwitchButtonConfigState createState() => new SwitchButtonConfigState();
+
+  @override
+  void clearFields() {
+    name.clear();
+    hostname.clear();
   }
+}
+
+class SwitchButtonConfigState extends State<SimpleSwitchConfig> {
+  final _formKey = GlobalKey<FormState>();
+  bool _tasmota = true;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: const EdgeInsets.only(bottom: 20),
-        height: 67,
-        width: 500,
-        child: Row(
+      color: Colors.grey.shade200,
+      padding: const EdgeInsets.all(5),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      "widget.name",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    getState(state),
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                    ),
-                  )
-                ],
+            Text(
+              "Simple Switch:",
+              style: TextStyle(
+                  fontWeight: FontWeight.w700
               ),
             ),
-            Switch(
-              value: state,
-              activeColor: Colors.amber,
-              onChanged: (bool b){
-                setState(() {
-                  state = b;
-                });
+            TextFormField(
+              controller: widget.name,
+              decoration: const InputDecoration(
+                hintText: "Device name",
+              ),
+              validator: widget.validateName,
+            ),
+            TextFormField(
+              controller: widget.hostname,
+              decoration: const InputDecoration(
+                  hintText: "Hostname / IP"
+              ),
+              validator: widget.validateHostname,
+            ),
+            Row(
+              children: [
+                Text("Tasmota:"),
+                Switch(
+                  value: _tasmota,
+                  activeColor: Colors.amber,
+                  onChanged: (bool b){
+                    setState(() {
+                      _tasmota = b;
+                    });
+                  },
+                ),
+              ],
+            ),
+            FloatingActionButton(
+              child: Icon(Icons.check),
+              elevation: 3.0,
+              onPressed: () {
+                if (_formKey.currentState.validate()){
+                  widget.addItem(SimpleSwitch(key: UniqueKey(), name: widget.name.text, hostname: widget.hostname.text, tasmota: _tasmota));
+                  Navigator.pop(context);
+                }
               },
             ),
           ],
-        )
+        ),
+      )
     );
   }
 }
