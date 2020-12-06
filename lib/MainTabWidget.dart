@@ -1,13 +1,10 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
 import 'package:home_control/subPages/pageNewDevice.dart';
 
-import 'controllableDevices/light.dart';
+import 'deviceControlWidgets/switchButton.dart';
 
 class MainTabs extends StatefulWidget {
-
   @override
   _MainTabsState createState() => _MainTabsState();
 }
@@ -15,6 +12,13 @@ class MainTabs extends StatefulWidget {
 class _MainTabsState extends State<MainTabs>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
+
+  List<Widget> firstList = [
+    SwitchButton(key: UniqueKey(), name: "Eins Licht"),
+    SwitchButton(key: UniqueKey(),name: "Zwei"),
+    SwitchButton(key: UniqueKey(),name: "Drei"),
+    SwitchButton(key: UniqueKey(),name: "Vier")
+  ];
 
   @override
   void initState() {
@@ -52,12 +56,16 @@ class _MainTabsState extends State<MainTabs>
         body: TabBarView(
           controller: _tabController,
           children: [
-            ListView(
-              children: [
-                SwitchButton("Eins Licht")
-              ],
+            ReorderableListView(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+              children: firstList,
+              onReorder: _reorderFirstList,
             ),
-            Icon(Icons.single_bed),
+            ReorderableListView(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+              children: firstList,
+              onReorder: _reorderFirstList,
+            ),
             Icon(Icons.settings),
           ],
         ),
@@ -67,8 +75,6 @@ class _MainTabsState extends State<MainTabs>
 
 
   }
-
-
 
   Widget _bottomButtons() {
     if (_tabController.index + 1 == _tabController.length) {
@@ -91,5 +97,15 @@ class _MainTabsState extends State<MainTabs>
         },
       );
     }
+  }
+
+  void _reorderFirstList(int oldIndex, int newIndex) {
+    setState(() {
+      final Widget tmp = firstList.removeAt(oldIndex);
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      firstList.insert(newIndex, tmp);
+    });
   }
 }
