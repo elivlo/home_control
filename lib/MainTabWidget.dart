@@ -15,17 +15,17 @@ class _MainTabsState extends State<MainTabs>
   TabController _tabController;
 
   List<DeviceControl> firstList = [
-    SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
-    SimpleSwitch(key: UniqueKey(),name: "Zwei"),
-    SimpleSwitch(key: UniqueKey(),name: "Drei"),
-    SimpleSwitch(key: UniqueKey(),name: "Vier")
+    //SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
+    //SimpleSwitch(key: UniqueKey(),name: "Zwei"),
+    //SimpleSwitch(key: UniqueKey(),name: "Drei"),
+    //SimpleSwitch(key: UniqueKey(),name: "Vier")
   ];
 
   List<DeviceControl> secondList = [
-    SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
-    SimpleSwitch(key: UniqueKey(),name: "Zwei"),
-    SimpleSwitch(key: UniqueKey(),name: "Drei"),
-    SimpleSwitch(key: UniqueKey(),name: "Vier")
+    //SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
+    //SimpleSwitch(key: UniqueKey(),name: "Zwei"),
+    //SimpleSwitch(key: UniqueKey(),name: "Drei"),
+    //SimpleSwitch(key: UniqueKey(),name: "Vier")
   ];
 
   @override

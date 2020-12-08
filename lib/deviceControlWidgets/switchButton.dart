@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_control/communication/sonoffMinFirmware.dart';
+import 'package:home_control/communication/tasmota.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
 class SimpleSwitch extends DeviceControl {
@@ -27,7 +28,12 @@ class SwitchButtonState extends State<SimpleSwitch> {
 
   @override
   Widget build(BuildContext context) {
-    SonoffMinFirmware server = SonoffMinFirmware(widget.hostname, 80);
+    var server;
+    if (widget.tasmota) {
+      server = TasmotaHTTPConnector(widget.hostname);
+    } else {
+      server = SonoffMinFirmware(widget.hostname, 80);
+    }
 
     _makeRequest(bool b) async {
       var resp = await server.setState(b);
