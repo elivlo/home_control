@@ -1,11 +1,10 @@
 import 'package:http/http.dart' as http;
 import 'dart:async';
 
-class TasmotaHTTPConnector {
-  TasmotaHTTPConnector(this.hostname);
+import 'package:home_control/communication/communication.dart';
 
-  final int port = 80;
-  String hostname;
+class TasmotaHTTPConnector extends CommunicationHandler {
+  TasmotaHTTPConnector(String hostname) : super(hostname, 80);
 
   Future<bool> getState() async {
     bool state = false;

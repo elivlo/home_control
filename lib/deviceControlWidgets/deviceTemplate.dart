@@ -1,17 +1,33 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 
 abstract class DeviceControl extends StatefulWidget {
-  DeviceControl({Key key, this.name, this.hostname}) : super(key: key);
+  DeviceControl({Key key, @required this.name, @required this.hostname}) : super(key: key);
 
   final String name;
   final String hostname;
 
   String getDeviceName();
+  void saveToDataBase();
+}
+
+abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
+  DeviceControlState(){
+    Timer.run(() { pollDeviceStatus(); });
+    poller = Timer.periodic(Duration(seconds: 2), (Timer t) {
+      pollDeviceStatus();
+    });
+  }
+
+  Timer poller;
+
+  void pollDeviceStatus();
 }
 
 abstract class DeviceConfig extends StatefulWidget {
-  DeviceConfig({Key key, this.addItem}) : super(key: key);
+  DeviceConfig({Key key, @required this.addItem}) : super(key: key);
 
   final TextEditingController name = TextEditingController();
   final TextEditingController hostname = TextEditingController();

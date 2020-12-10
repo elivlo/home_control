@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
+import 'package:home_control/deviceControlWidgets/switchButton.dart';
 
 import 'package:home_control/subPages/pageNewDevice.dart';
-
-import 'deviceControlWidgets/switchButton.dart';
+import 'package:sqflite/sqflite.dart';
 
 class MainTabs extends StatefulWidget {
   @override
@@ -14,25 +14,16 @@ class _MainTabsState extends State<MainTabs>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
 
-  List<DeviceControl> firstList = [
-    //SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
-    //SimpleSwitch(key: UniqueKey(),name: "Zwei"),
-    //SimpleSwitch(key: UniqueKey(),name: "Drei"),
-    //SimpleSwitch(key: UniqueKey(),name: "Vier")
-  ];
+  List<DeviceControl> firstList = [];
 
-  List<DeviceControl> secondList = [
-    //SimpleSwitch(key: UniqueKey(), name: "Eins Licht"),
-    //SimpleSwitch(key: UniqueKey(),name: "Zwei"),
-    //SimpleSwitch(key: UniqueKey(),name: "Drei"),
-    //SimpleSwitch(key: UniqueKey(),name: "Vier")
-  ];
+  List<DeviceControl> secondList = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
+    _createAndLoadDB();
   }
 
   @override
@@ -40,10 +31,6 @@ class _MainTabsState extends State<MainTabs>
     _tabController.removeListener(_handleTabIndex);
     _tabController.dispose();
     super.dispose();
-  }
-
-  void _handleTabIndex() {
-    setState(() {});
   }
 
   @override
@@ -84,6 +71,28 @@ class _MainTabsState extends State<MainTabs>
 
   }
 
+  void _createAndLoadDB() async {
+    var db = await openDatabase("state.db", onCreate: (db, version) async {
+      await db.execute('CREATE TABLE Devices (id INTEGER PRIMARY KEY, type TEXT, name TEXT, hostname TEXT, tasmota INTEGER)');
+    }, version: 1);
+    List<Map> list = await db.rawQuery('SELECT * FROM Devices');
+    setState(() {
+      for (var item in list) {
+        bool t;
+        if (item["tasmota"] == 1) {
+          t = true;
+        } else {
+          t = false;
+        }
+        firstList.add(SimpleSwitch(key: UniqueKey(), name: item["name"].toString(), hostname: item["hostname"].toString(), tasmota: t));
+      }
+    });
+  }
+
+  void _handleTabIndex() {
+    setState(() {});
+  }
+
   Widget _bottomButtons() {
     if (_tabController.index + 1 == _tabController.length) {
       return FloatingActionButton(
@@ -117,7 +126,7 @@ class _MainTabsState extends State<MainTabs>
     });
   }
 
-  void _addControlItem(int page, DeviceControl d) {
+  void _addControlItem(int page, DeviceControl d) async {
     setState(() {
       if (page == 0) {
         firstList.add(d);
@@ -125,5 +134,6 @@ class _MainTabsState extends State<MainTabs>
         secondList.add(d);
       }
     });
+    d.saveToDataBase();
   }
 }

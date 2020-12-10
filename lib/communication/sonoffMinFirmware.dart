@@ -1,28 +1,28 @@
 import 'dart:io';
 import 'dart:async';
 
-class SonoffMinFirmware {
-  SonoffMinFirmware(this.hostname, this.port);
+import 'package:home_control/communication/communication.dart';
 
-  int port;
-  String hostname;
+class SonoffMinFirmware extends CommunicationHandler{
+  SonoffMinFirmware(String hostname, int port) : super(hostname, port);
 
   Future<bool> getState() async {
     int state;
     Socket socket = await Socket.connect(hostname, port);
-    print("connected " + hostname);
-
-    socket.listen((List<int> event) {
-      state = event[event.length-1];
-    });
 
     socket.add([3]);
 
-    await Future.delayed(Duration(seconds: 1));
+    await socket.first.then((value) {
+      state = value.first;
+    }, onError: (err){
+      state = null;
+    });
 
     socket.close();
 
-    if (state == 1) {
+    if (state == null) {
+      return null;
+    } else if (state == 1) {
       return true;
     }
     return false;
@@ -31,11 +31,6 @@ class SonoffMinFirmware {
   Future<bool> setState(bool on) async {
     int state;
     Socket socket = await Socket.connect(hostname, port);
-    print("connected " + hostname);
-
-    socket.listen((List<int> event) {
-      state = event[event.length-1];
-    });
 
     if (on) {
       socket.add([1]);
@@ -43,13 +38,17 @@ class SonoffMinFirmware {
       socket.add([2]);
     }
 
-    await Future.delayed(Duration(milliseconds: 400));
+    await socket.first.then((value) {
+      state = value.first;
+    }, onError: (err){
+      state = null;
+    });
 
     socket.close();
 
-    print(state);
-
-    if (state == 1) {
+    if (state == null) {
+      return null;
+    } else if (state == 1) {
       return true;
     }
     return false;

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:home_control/communication/communication.dart';
 import 'package:home_control/communication/sonoffMinFirmware.dart';
 import 'package:home_control/communication/tasmota.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
 class SimpleSwitch extends DeviceControl {
-  SimpleSwitch({Key key, String name, hostname, this.tasmota}) : super(key: key, name: name, hostname: hostname);
+  SimpleSwitch({Key key, String name, hostname, @required this.tasmota}) : super(key: key, name: name, hostname: hostname);
 
   final bool tasmota;
 
@@ -17,25 +19,46 @@ class SimpleSwitch extends DeviceControl {
   String getDeviceName() {
     return "Simple Switch";
   }
+
+  @override
+  void saveToDataBase() async {
+    var db = await openDatabase("state.db");
+    await db.transaction((txn) async {
+      print(await txn.rawInsert(
+          'INSERT INTO Devices(name, hostname, tasmota) VALUES(?, ?, ?)', [name, hostname, tasmota == true ? 1 : 0]));
+    });
+  }
 }
 
-class SwitchButtonState extends State<SimpleSwitch> {
+class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   bool state = false;
+  CommunicationHandler server;
 
   getState(bool s) {
     return s ? "On" : "Off";
   }
 
   @override
+  void pollDeviceStatus() async {
+    if (server != null) {
+      var resp = await server.getState();
+      setState(() {
+        if (resp != null) {
+          state = resp;
+        }
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var server;
     if (widget.tasmota) {
       server = TasmotaHTTPConnector(widget.hostname);
     } else {
       server = SonoffMinFirmware(widget.hostname, 80);
     }
 
-    _makeRequest(bool b) async {
+    makeRequest(bool b) async {
       var resp = await server.setState(b);
       setState(() {
         if (resp != null) {
@@ -76,7 +99,7 @@ class SwitchButtonState extends State<SimpleSwitch> {
             Switch(
               value: state,
               activeColor: Colors.amber,
-              onChanged: _makeRequest,
+              onChanged: makeRequest,
             ),
           ],
         )
