@@ -3,13 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 
-abstract class DeviceControl extends StatefulWidget {
-  DeviceControl({Key key, @required this.name, @required this.hostname}) : super(key: key);
+const List<String> devices = [
+  "Simple Switch",
+];
 
+abstract class DeviceControl extends StatefulWidget {
+  DeviceControl({Key key, @required this.name, @required this.hostname, @required this.page, @required this.deviceNAME}) : super(key: key);
+
+  final String deviceNAME;
+
+  final int page;
   final String name;
   final String hostname;
 
-  String getDeviceName();
   void saveToDataBase();
 }
 
@@ -24,15 +30,21 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
   Timer poller;
 
   void pollDeviceStatus();
+
+  @override
+  void dispose(){
+    poller.cancel();
+    super.dispose();
+  }
 }
 
 abstract class DeviceConfig extends StatefulWidget {
-  DeviceConfig({Key key, @required this.addItem}) : super(key: key);
+  DeviceConfig({Key key, @required this.page}) : super(key: key);
 
   final TextEditingController name = TextEditingController();
   final TextEditingController hostname = TextEditingController();
 
-  final void Function(DeviceControl d) addItem;
+  final int page;
 
   void clearFields();
 

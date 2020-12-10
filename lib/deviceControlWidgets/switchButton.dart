@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:home_control/MainTabWidget.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:home_control/communication/communication.dart';
 import 'package:home_control/communication/sonoffMinFirmware.dart';
@@ -6,7 +7,7 @@ import 'package:home_control/communication/tasmota.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
 class SimpleSwitch extends DeviceControl {
-  SimpleSwitch({Key key, String name, hostname, @required this.tasmota}) : super(key: key, name: name, hostname: hostname);
+  SimpleSwitch({@required Key key, @required String name, @required hostname, @required page, @required this.tasmota}) : super(key: key, name: name, hostname: hostname, page: page, deviceNAME: "Simple Switch");
 
   final bool tasmota;
 
@@ -16,16 +17,11 @@ class SimpleSwitch extends DeviceControl {
   }
 
   @override
-  String getDeviceName() {
-    return "Simple Switch";
-  }
-
-  @override
   void saveToDataBase() async {
     var db = await openDatabase("state.db");
     await db.transaction((txn) async {
-      print(await txn.rawInsert(
-          'INSERT INTO Devices(name, hostname, tasmota) VALUES(?, ?, ?)', [name, hostname, tasmota == true ? 1 : 0]));
+      await txn.rawInsert(
+          'INSERT INTO Devices(name, page, type, hostname, tasmota) VALUES(?, ?, ?, ?, ?)', [name, page, deviceNAME, hostname, tasmota == true ? 1 : 0]);
     });
   }
 }
@@ -52,6 +48,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
 
   @override
   Widget build(BuildContext context) {
+    final HomeController h = HomeController.of(context);
     if (widget.tasmota) {
       server = TasmotaHTTPConnector(widget.hostname);
     } else {
@@ -68,39 +65,64 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
     }
 
     return Container(
-        padding: const EdgeInsets.only(bottom: 20),
-        height: 67,
-        width: 500,
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      widget.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+        child: ExpansionTile(
+          childrenPadding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
+          title: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        widget.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
-                  ),
-                  Text(
-                    getState(state),
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                    ),
-                  )
-                ],
+                    Text(
+                      getState(state),
+                      style: TextStyle(
+                        color: Colors.grey[500],
+                      ),
+                    )
+                  ],
+                ),
               ),
+              Switch(
+                value: state,
+                activeColor: Colors.amber,
+                onChanged: makeRequest,
+              ),
+            ],
+          ),
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text("Edit"),
+                ),
+                IconButton(
+                  icon: Icon(Icons.settings),
+                )
+              ],
             ),
-            Switch(
-              value: state,
-              activeColor: Colors.amber,
-              onChanged: makeRequest,
-            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text("Delete"),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: (){
+                    h.removeItem(widget.page, this.widget);
+                  },
+                )
+              ],
+            )
           ],
         )
     );
@@ -108,7 +130,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
 }
 
 class SimpleSwitchConfig extends DeviceConfig {
-  SimpleSwitchConfig({Key key, addItem}) : super(key: key, addItem: addItem);
+  SimpleSwitchConfig({Key key, @required page}) : super(key: key, page: page);
 
   @override
   SwitchButtonConfigState createState() => new SwitchButtonConfigState();
@@ -173,8 +195,7 @@ class SwitchButtonConfigState extends State<SimpleSwitchConfig> {
               elevation: 3.0,
               onPressed: () {
                 if (_formKey.currentState.validate()){
-                  widget.addItem(SimpleSwitch(key: UniqueKey(), name: widget.name.text, hostname: widget.hostname.text, tasmota: _tasmota));
-                  Navigator.pop(context);
+                  Navigator.pop(context, SimpleSwitch(key: UniqueKey(), name: widget.name.text, hostname: widget.hostname.text, page: widget.page, tasmota: _tasmota));
                 }
               },
             ),

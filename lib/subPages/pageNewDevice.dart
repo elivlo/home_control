@@ -3,10 +3,9 @@ import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 import 'package:home_control/deviceControlWidgets/switchButton.dart';
 
 class NewDevicePage extends StatefulWidget {
-  NewDevicePage(this.page, this.addItem);
+  NewDevicePage(this.page);
 
   final int page;
-  final void Function(int page, DeviceControl d) addItem;
 
   @override
   _NewDevicePage createState() => _NewDevicePage();
@@ -15,11 +14,11 @@ class NewDevicePage extends StatefulWidget {
 class _NewDevicePage extends State<NewDevicePage> {
   @override
   Widget build(BuildContext context) {
-    String selDeviceName = SimpleSwitch().getDeviceName();
+    String selDeviceName = SimpleSwitch().deviceNAME;
     final Map<String, DeviceConfig> devs = {
-      SimpleSwitch().getDeviceName(): SimpleSwitchConfig(addItem: _addItem),
+      SimpleSwitch().deviceNAME: SimpleSwitchConfig(page: widget.page),
     };
-    DeviceConfig config = devs[SimpleSwitch().getDeviceName()];
+    DeviceConfig config = devs[SimpleSwitch().deviceNAME];
 
     return Scaffold(
       appBar: AppBar(
@@ -58,7 +57,4 @@ class _NewDevicePage extends State<NewDevicePage> {
     );
   }
 
-  void _addItem(DeviceControl d) {
-    widget.addItem(widget.page, d);
-  }
 }

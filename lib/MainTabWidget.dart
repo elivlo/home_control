@@ -5,6 +5,22 @@ import 'package:home_control/deviceControlWidgets/switchButton.dart';
 import 'package:home_control/subPages/pageNewDevice.dart';
 import 'package:sqflite/sqflite.dart';
 
+class HomeController extends InheritedWidget {
+  final void Function(int page, DeviceControl d) addItem;
+  final void Function(int page, DeviceControl d) removeItem;
+
+  const HomeController(this.addItem, this.removeItem, child): super(child: child);
+
+  static HomeController of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<HomeController>();
+  }
+
+  @override
+  bool updateShouldNotify(HomeController oldWidget) =>
+    removeItem != removeItem || addItem != addItem;
+
+}
+
 class MainTabs extends StatefulWidget {
   @override
   _MainTabsState createState() => _MainTabsState();
@@ -48,21 +64,25 @@ class _MainTabsState extends State<MainTabs>
             ],
           ),
         ),
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            ReorderableListView(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
-              children: firstList,
-              onReorder: _reorderFirstList,
-            ),
-            ReorderableListView(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
-              children: secondList,
-              onReorder: _reorderFirstList,
-            ),
-            Icon(Icons.settings),
-          ],
+        body: HomeController(
+          _addControlItem,
+          _removeControlItem,
+          TabBarView(
+            controller: _tabController,
+            children: [
+              ReorderableListView(
+                padding: const EdgeInsets.only(top: 10),
+                children: firstList,
+                onReorder: _reorderFirstList,
+              ),
+              ReorderableListView(
+                padding: const EdgeInsets.only(top: 10),
+                children: secondList,
+                onReorder: _reorderFirstList,
+              ),
+              Icon(Icons.settings),
+            ],
+          ),
         ),
         floatingActionButton: _bottomButtons(),
       ),
@@ -73,18 +93,25 @@ class _MainTabsState extends State<MainTabs>
 
   void _createAndLoadDB() async {
     var db = await openDatabase("state.db", onCreate: (db, version) async {
-      await db.execute('CREATE TABLE Devices (id INTEGER PRIMARY KEY, type TEXT, name TEXT, hostname TEXT, tasmota INTEGER)');
-    }, version: 1);
+      await db.execute('CREATE TABLE Devices (id INTEGER PRIMARY KEY, page INTEGER, type TEXT, name TEXT, hostname TEXT, tasmota INTEGER)');
+    }, onUpgrade: (db, oldDB, newDB) async {
+      await db.execute('ALTER TABLE Devices ADD tasmota INTEGER');
+    }, version: 1, );
     List<Map> list = await db.rawQuery('SELECT * FROM Devices');
     setState(() {
       for (var item in list) {
-        bool t;
-        if (item["tasmota"] == 1) {
-          t = true;
-        } else {
-          t = false;
+        var type = item["type"].toString();
+
+        switch (type) {
+          case "Simple Switch": {
+            _loadDBItem(item["page"], SimpleSwitch(key: UniqueKey(), name: item["name"].toString(), hostname: item["hostname"].toString(), page: item["page"], tasmota: item["tasmota"] == 1 ? true : false));
+            break;
+          }
+          default: {
+            db.delete("Devices", where: "id", whereArgs: item["id"]);
+            break;
+          }
         }
-        firstList.add(SimpleSwitch(key: UniqueKey(), name: item["name"].toString(), hostname: item["hostname"].toString(), tasmota: t));
       }
     });
   }
@@ -105,12 +132,13 @@ class _MainTabsState extends State<MainTabs>
         child: Icon(Icons.add),
         elevation: 3.0,
         mini: true,
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          DeviceControl device = await Navigator.push(
               context,
               MaterialPageRoute(builder: (BuildContext context) {
-                return NewDevicePage(_tabController.index, _addControlItem);
+                return NewDevicePage(_tabController.index);
               }));
+          _addControlItem(device.page, device);
         },
       );
     }
@@ -126,6 +154,15 @@ class _MainTabsState extends State<MainTabs>
     });
   }
 
+  void _loadDBItem(int page, DeviceControl d) {
+    print("load");
+    if (page == 0) {
+      firstList.add(d);
+    } else {
+      secondList.add(d);
+    }
+  }
+
   void _addControlItem(int page, DeviceControl d) async {
     setState(() {
       if (page == 0) {
@@ -134,6 +171,19 @@ class _MainTabsState extends State<MainTabs>
         secondList.add(d);
       }
     });
+    print("add");
     d.saveToDataBase();
+  }
+
+  void _removeControlItem(int page, DeviceControl d) async {
+    setState(() {
+      if (page == 0) {
+        firstList.remove(d);
+      } else {
+        secondList.remove(d);
+      }
+    });
+    var db = await openDatabase("state.db");
+    await db.delete("Devices", where: "name = ? AND hostname = ?", whereArgs: [d.name, d.hostname]);
   }
 }
