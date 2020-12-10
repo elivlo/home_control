@@ -155,7 +155,6 @@ class _MainTabsState extends State<MainTabs>
   }
 
   void _loadDBItem(int page, DeviceControl d) {
-    print("load");
     if (page == 0) {
       firstList.add(d);
     } else {
@@ -171,7 +170,6 @@ class _MainTabsState extends State<MainTabs>
         secondList.add(d);
       }
     });
-    print("add");
     d.saveToDataBase();
   }
 
