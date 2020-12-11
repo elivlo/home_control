@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:home_control/communication/communication.dart';
 
+// SonoffMinFirmware to controll all Tasmota Devices
+// TODO: May split in sub Classes when it gets bigger
 class TasmotaHTTPConnector extends CommunicationHandler {
   TasmotaHTTPConnector(String hostname) : super(hostname, 80);
 

@@ -1,15 +1,23 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 import 'package:home_control/deviceControlWidgets/switchButton.dart';
 
 import 'package:home_control/subPages/pageNewDevice.dart';
+import 'package:home_control/subPages/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
+
+// HomeController contains data and methods used by other child widgets
 class HomeController extends InheritedWidget {
   final void Function(int page, DeviceControl d) addItem;
   final void Function(int page, DeviceControl d) removeItem;
 
-  const HomeController(this.addItem, this.removeItem, child): super(child: child);
+  final bool wifiConnection;
+  final int pollingTime;
+
+  const HomeController(this.addItem, this.removeItem, this.wifiConnection, this.pollingTime, child): super(child: child);
 
   static HomeController of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<HomeController>();
@@ -17,10 +25,12 @@ class HomeController extends InheritedWidget {
 
   @override
   bool updateShouldNotify(HomeController oldWidget) =>
-    removeItem != removeItem || addItem != addItem;
+    removeItem != removeItem || addItem != addItem
+    || wifiConnection != wifiConnection || pollingTime != pollingTime;
 
 }
 
+// MainTabs shows two Tabs for Devices and one settings tab
 class MainTabs extends StatefulWidget {
   @override
   _MainTabsState createState() => _MainTabsState();
@@ -29,9 +39,12 @@ class MainTabs extends StatefulWidget {
 class _MainTabsState extends State<MainTabs>
     with SingleTickerProviderStateMixin {
   TabController _tabController;
+  
+  int _pollingTime;
+  bool _wifiConnection = true;
+  var connection;
 
   List<DeviceControl> firstList = [];
-
   List<DeviceControl> secondList = [];
 
   @override
@@ -39,14 +52,19 @@ class _MainTabsState extends State<MainTabs>
     super.initState();
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
+    _loadConfig();
     _createAndLoadDB();
+    connection = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      result == ConnectivityResult.wifi ? _wifiConnection = true : _wifiConnection = false;
+    });
   }
 
   @override
   void dispose() {
+    super.dispose();
     _tabController.removeListener(_handleTabIndex);
     _tabController.dispose();
-    super.dispose();
+    connection.cancel();
   }
 
   @override
@@ -67,6 +85,8 @@ class _MainTabsState extends State<MainTabs>
         body: HomeController(
           _addControlItem,
           _removeControlItem,
+          _wifiConnection,
+          _pollingTime,
           TabBarView(
             controller: _tabController,
             children: [
@@ -78,9 +98,9 @@ class _MainTabsState extends State<MainTabs>
               ReorderableListView(
                 padding: const EdgeInsets.only(top: 10),
                 children: secondList,
-                onReorder: _reorderFirstList,
+                onReorder: _reorderSecondList,
               ),
-              Icon(Icons.settings),
+              Settings(),
             ],
           ),
         ),
@@ -91,13 +111,15 @@ class _MainTabsState extends State<MainTabs>
 
   }
 
+  // _bottomButtons() returns FloatingButtons for adding Devices
   Widget _bottomButtons() {
     if (_tabController.index + 1 == _tabController.length) {
-      return FloatingActionButton(
+      /*return FloatingActionButton(
         elevation: 3.0,
         mini: true,
         onPressed: null,
-      );
+      );*/
+      return null;
     } else {
       return FloatingActionButton(
         child: Icon(Icons.add),
@@ -115,6 +137,16 @@ class _MainTabsState extends State<MainTabs>
     }
   }
 
+  // _loadConfig() loads App Preferences
+  void _loadConfig() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _pollingTime = prefs.getInt("polling_time");
+    if (_pollingTime == null || _pollingTime.isNaN) {
+      _pollingTime = 2;
+    }
+  }
+
+  // _createAndLoadDB() loads all Devices stored in Database and delete entry when not a valid Device
   void _createAndLoadDB() async {
     var db = await openDatabase("state.db", onCreate: (db, version) async {
       await db.execute('CREATE TABLE Devices (id INTEGER PRIMARY KEY, page INTEGER, type TEXT, name TEXT, hostname TEXT, tasmota INTEGER)');
@@ -151,6 +183,16 @@ class _MainTabsState extends State<MainTabs>
         newIndex -= 1;
       }
       firstList.insert(newIndex, tmp);
+    });
+  }
+
+  void _reorderSecondList(int oldIndex, int newIndex) {
+    setState(() {
+      final Widget tmp = secondList.removeAt(oldIndex);
+      if (newIndex > oldIndex) {
+        newIndex -= 1;
+      }
+      secondList.insert(newIndex, tmp);
     });
   }
 

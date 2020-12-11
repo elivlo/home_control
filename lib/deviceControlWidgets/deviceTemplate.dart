@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:string_validator/string_validator.dart';
 
+import '../MainTabWidget.dart';
+
 const List<String> devices = [
   "Simple Switch",
 ];
 
+// DeviceControl Widget Base for all Devices to control
 abstract class DeviceControl extends StatefulWidget {
   DeviceControl({Key key, @required this.name, @required this.hostname, @required this.page, @required this.deviceNAME}) : super(key: key);
 
@@ -19,25 +22,30 @@ abstract class DeviceControl extends StatefulWidget {
   void saveToDataBase();
 }
 
+// DeviceControlState Widget Base for all Devices to control
 abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
   DeviceControlState(){
+    homeController = HomeController.of(context);
     Timer.run(() { pollDeviceStatus(); });
     poller = Timer.periodic(Duration(seconds: 2), (Timer t) {
-      pollDeviceStatus();
+      if (homeController.wifiConnection)
+        pollDeviceStatus();
     });
   }
 
+  HomeController homeController;
   Timer poller;
 
   void pollDeviceStatus();
 
   @override
   void dispose(){
-    poller.cancel();
     super.dispose();
+    poller.cancel();
   }
 }
 
+// DeviceConfig Widget Base for add/setup DeviceControl to List
 abstract class DeviceConfig extends StatefulWidget {
   DeviceConfig({Key key, @required this.page}) : super(key: key);
 
