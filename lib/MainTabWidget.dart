@@ -91,6 +91,30 @@ class _MainTabsState extends State<MainTabs>
 
   }
 
+  Widget _bottomButtons() {
+    if (_tabController.index + 1 == _tabController.length) {
+      return FloatingActionButton(
+        elevation: 3.0,
+        mini: true,
+        onPressed: null,
+      );
+    } else {
+      return FloatingActionButton(
+        child: Icon(Icons.add),
+        elevation: 3.0,
+        mini: true,
+        onPressed: () async {
+          DeviceControl device = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (BuildContext context) {
+                return NewDevicePage(_tabController.index);
+              }));
+          _addControlItem(device.page, device);
+        },
+      );
+    }
+  }
+
   void _createAndLoadDB() async {
     var db = await openDatabase("state.db", onCreate: (db, version) async {
       await db.execute('CREATE TABLE Devices (id INTEGER PRIMARY KEY, page INTEGER, type TEXT, name TEXT, hostname TEXT, tasmota INTEGER)');
@@ -118,30 +142,6 @@ class _MainTabsState extends State<MainTabs>
 
   void _handleTabIndex() {
     setState(() {});
-  }
-
-  Widget _bottomButtons() {
-    if (_tabController.index + 1 == _tabController.length) {
-      return FloatingActionButton(
-        elevation: 3.0,
-        mini: true,
-        onPressed: null,
-      );
-    } else {
-      return FloatingActionButton(
-        child: Icon(Icons.add),
-        elevation: 3.0,
-        mini: true,
-        onPressed: () async {
-          DeviceControl device = await Navigator.push(
-              context,
-              MaterialPageRoute(builder: (BuildContext context) {
-                return NewDevicePage(_tabController.index);
-              }));
-          _addControlItem(device.page, device);
-        },
-      );
-    }
   }
 
   void _reorderFirstList(int oldIndex, int newIndex) {
