@@ -1,7 +1,16 @@
 name: Test Flutter App
 
 # Controls when the action will run. 
-on: [push, pull_request, page_build, release, workflow_dispatch]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  page_build:
+  release:
+    types:
+      - created
+  workflow_dispatch:
 
 jobs:
   flutter_test:
