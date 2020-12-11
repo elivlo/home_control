@@ -6,6 +6,8 @@ import 'package:home_control/communication/sonoffMinFirmware.dart';
 import 'package:home_control/communication/tasmota.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
+// SimpleSwitch Widget to use with Tasmota (Sonoff Basic) when only on or off is needed
+// Also for use with my MinSonoffBasicFirmware
 class SimpleSwitch extends DeviceControl {
   SimpleSwitch({@required Key key, @required String name, @required hostname, @required page, @required this.tasmota}) : super(key: key, name: name, hostname: hostname, page: page, deviceNAME: "Simple Switch");
 
@@ -129,6 +131,8 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   }
 }
 
+// SimpleSwitchConfig to use with Tasmota (Sonoff Basic) when only on or off is needed
+// Also for use with my MinSonoffBasicFirmware
 class SimpleSwitchConfig extends DeviceConfig {
   SimpleSwitchConfig({Key key, @required page}) : super(key: key, page: page);
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 import 'package:home_control/deviceControlWidgets/switchButton.dart';
 
+// NewDevicePage Widget shown when clicked on FloatingActionButton
 class NewDevicePage extends StatefulWidget {
   NewDevicePage(this.page);
 
