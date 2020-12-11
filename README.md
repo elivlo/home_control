@@ -2,15 +2,9 @@
 
 Home control
 
-## Getting Started
+[![GitHub version](https://img.shields.io/github/v/release/elivlo/home_control.svg)](https://github.com/elivlo/home_control/releases/latest)
+[![License](https://img.shields.io/github/license/elivlo/home_control.svg)](LICENSE.txt)
+[![test app](https://github.com/elivlo/home_control/workflows/Test%20Flutter%20App/badge.svg)](https://github.com/elivlo/home_control/actions?query=workflow%3A%22Test+Flutter+App%22)
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+___
+This app implements a basic way to control tasmota flashed devices. It uses http requests to control the devices.
