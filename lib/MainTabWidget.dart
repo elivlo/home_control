@@ -24,10 +24,10 @@ class HomeController extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(HomeController oldWidget) =>
-    removeItem != removeItem || addItem != addItem
-    || wifiConnection != wifiConnection || pollingTime != pollingTime;
-
+  bool updateShouldNotify(HomeController oldWidget) {
+    return oldWidget.removeItem != removeItem || oldWidget.addItem != addItem
+        || oldWidget.wifiConnection != wifiConnection || oldWidget.pollingTime != pollingTime;
+  }
 }
 
 // MainTabs shows two Tabs for Devices and one settings tab
@@ -55,7 +55,9 @@ class _MainTabsState extends State<MainTabs>
     _loadConfig();
     _createAndLoadDB();
     connection = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      result == ConnectivityResult.wifi ? _wifiConnection = true : _wifiConnection = false;
+      setState(() {
+        result == ConnectivityResult.wifi ? _wifiConnection = true : _wifiConnection = false;
+      });
     });
   }
 

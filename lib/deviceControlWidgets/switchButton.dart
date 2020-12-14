@@ -30,31 +30,41 @@ class SimpleSwitch extends DeviceControl {
 
 class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   bool state = false;
-  CommunicationHandler server;
 
   getState(bool s) {
     return s ? "On" : "Off";
   }
 
   @override
+  void setupCommunicationHandler() {
+    if (widget.tasmota) {
+      server = TasmotaHTTPConnector(widget.hostname);
+    } else {
+      server = SonoffMinFirmware(widget.hostname, 80);
+    }
+  }
+
+  @override
   void pollDeviceStatus() async {
     if (server != null) {
       var resp = await server.getState();
-      setState(() {
-        if (resp != null) {
-          state = resp;
-        }
-      });
+      if (this.mounted) {
+        setState(() {
+          if (resp != null) {
+            state = resp;
+          }
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final HomeController h = HomeController.of(context);
-    if (widget.tasmota) {
-      server = TasmotaHTTPConnector(widget.hostname);
+    if (!h.wifiConnection) {
+      poller.cancel();
     } else {
-      server = SonoffMinFirmware(widget.hostname, 80);
+      startTimer(h.pollingTime);
     }
 
     makeRequest(bool b) async {
