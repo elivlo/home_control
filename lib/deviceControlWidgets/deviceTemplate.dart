@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:home_control/communication/communication.dart';
 import 'package:string_validator/string_validator.dart';
 
 import '../MainTabWidget.dart';
@@ -24,24 +25,34 @@ abstract class DeviceControl extends StatefulWidget {
 
 // DeviceControlState Widget Base for all Devices to control
 abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
-  DeviceControlState(){
-    homeController = HomeController.of(context);
-    Timer.run(() { pollDeviceStatus(); });
-    poller = Timer.periodic(Duration(seconds: 2), (Timer t) {
-      if (homeController.wifiConnection)
-        pollDeviceStatus();
+
+  Timer poller;
+  CommunicationHandler server;
+
+  void setupCommunicationHandler();
+  void pollDeviceStatus();
+
+  void startTimer(int sec){
+    if (poller != null) {
+      poller.cancel();
+    }
+    poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
+      pollDeviceStatus();
     });
   }
 
-  HomeController homeController;
-  Timer poller;
-
-  void pollDeviceStatus();
+  @override
+  void initState() {
+    super.initState();
+    setupCommunicationHandler();
+    Timer.run(() { pollDeviceStatus(); });
+    startTimer(2);
+  }
 
   @override
   void dispose(){
-    super.dispose();
     poller.cancel();
+    super.dispose();
   }
 }
 

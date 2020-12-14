@@ -68,7 +68,8 @@ class SettingsState extends State<Settings> {
               child: RichText(text: TextSpan(
                 children: [
                   TextSpan(
-                    text: Settings.owner + " - "
+                    text: Settings.owner + " - ",
+                    style: TextStyle(color: Colors.black),
                   ),
                   TextSpan(
                     text: Settings.gitproject,
