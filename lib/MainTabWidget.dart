@@ -233,7 +233,9 @@ class _MainTabsState extends State<MainTabs>
     await db.delete("Devices", where: "name = ? AND hostname = ?", whereArgs: [d.name, d.hostname]);
   }
 
-  void _changePollingTimer(int time) {
+  void _changePollingTimer(int time) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("polling_time", time);
     setState(() {
       this._pollingTime = time;
     });
