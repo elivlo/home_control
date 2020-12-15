@@ -13,11 +13,14 @@ import 'package:sqflite/sqflite.dart';
 class HomeController extends InheritedWidget {
   final void Function(int page, DeviceControl d) addItem;
   final void Function(int page, DeviceControl d) removeItem;
+  final void Function(int time) changePollingTimer;
 
   final bool wifiConnection;
   final int pollingTime;
 
-  const HomeController(this.addItem, this.removeItem, this.wifiConnection, this.pollingTime, child): super(child: child);
+  const HomeController({@required this.addItem, @required this.removeItem, @required this.changePollingTimer,
+    @required this.wifiConnection, @required this.pollingTime, @required Widget child})
+      : super(child: child);
 
   static HomeController of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<HomeController>();
@@ -85,11 +88,12 @@ class _MainTabsState extends State<MainTabs>
           ),
         ),
         body: HomeController(
-          _addControlItem,
-          _removeControlItem,
-          _wifiConnection,
-          _pollingTime,
-          TabBarView(
+          pollingTime: _pollingTime,
+          wifiConnection: _wifiConnection,
+          addItem: _addControlItem,
+          removeItem: _removeControlItem,
+          changePollingTimer: _changePollingTimer,
+          child: TabBarView(
             controller: _tabController,
             children: [
               ReorderableListView(
@@ -227,5 +231,13 @@ class _MainTabsState extends State<MainTabs>
     });
     var db = await openDatabase("state.db");
     await db.delete("Devices", where: "name = ? AND hostname = ?", whereArgs: [d.name, d.hostname]);
+  }
+
+  void _changePollingTimer(int time) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("polling_time", time);
+    setState(() {
+      this._pollingTime = time;
+    });
   }
 }

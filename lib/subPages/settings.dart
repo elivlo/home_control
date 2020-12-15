@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -39,7 +40,6 @@ class SettingsState extends State<Settings> {
     return Container(
         child: ListView(
           padding: const EdgeInsets.only(bottom: 20),
-
           children: [
             Container(
               alignment: Alignment(0, 0),
@@ -49,7 +49,28 @@ class SettingsState extends State<Settings> {
             Container(
               alignment: Alignment(0, 0),
               color: Colors.grey.shade200,
-              child: Text("Polling Interval: " + h.pollingTime.toString(), textAlign: TextAlign.center),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text("Polling Interval: ", textAlign: TextAlign.center),
+                  ),
+                  Flexible(
+                    flex: 1,
+                    child: TextFormField(
+                      textAlign: TextAlign.center,
+                      initialValue: h.pollingTime.toString(),
+                      decoration: const InputDecoration(
+                        hintText: "Polling time in seconds",
+                      ),
+                      onChanged: (value){
+                        h.changePollingTimer(int.parse(value));
+                      },
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      autovalidateMode: AutovalidateMode.always,
+                    )
+                  ),
+                ],
+              ),
               height: 40,
             ),
             Container(
