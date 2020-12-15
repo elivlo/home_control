@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_control/MainTabWidget.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:home_control/communication/communication.dart';
 import 'package:home_control/communication/sonoffMinFirmware.dart';
 import 'package:home_control/communication/tasmota.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
@@ -63,7 +62,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
     final HomeController h = HomeController.of(context);
     if (!h.wifiConnection) {
       poller.cancel();
-    } else {
+    } else if (h.pollingTime > 0) {
       startTimer(h.pollingTime);
     }
 
