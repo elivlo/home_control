@@ -14,6 +14,7 @@ const List<String> devices = [
 abstract class DeviceControl extends StatefulWidget {
   DeviceControl({Key key, @required this.name, @required this.hostname, @required this.page, @required this.deviceNAME}) : super(key: key);
 
+  // This is the general name for this type
   final String deviceNAME;
 
   final int page;
@@ -25,7 +26,6 @@ abstract class DeviceControl extends StatefulWidget {
 
 // DeviceControlState Widget Base for all Devices to control
 abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
-
   Timer poller;
   CommunicationHandler server;
 
@@ -36,9 +36,11 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
     if (poller != null) {
       poller.cancel();
     }
-    poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
-      pollDeviceStatus();
-    });
+    if (sec > 0) {
+      poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
+        pollDeviceStatus();
+      });
+    }
   }
 
   @override

@@ -5,7 +5,7 @@ abstract class CommunicationHandler {
   int port;
   String hostname;
 
-  Future<bool> getState();
+  Future<bool> getStateBool(int relayNumber);
 
-  Future<bool> setState(bool on);
+  Future<bool> setStateBool(int relayNumber, bool on);
 }
