@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_control/MainTabWidget.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:home_control/communication/communication.dart';
 import 'package:home_control/communication/sonoffMinFirmware.dart';
 import 'package:home_control/communication/tasmota.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
@@ -47,7 +46,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   @override
   void pollDeviceStatus() async {
     if (server != null) {
-      var resp = await server.getState();
+      var resp = await server.getStateBool(1);
       if (this.mounted) {
         setState(() {
           if (resp != null) {
@@ -68,7 +67,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
     }
 
     makeRequest(bool b) async {
-      var resp = await server.setState(b);
+      var resp = await server.setStateBool(1, b);
       setState(() {
         if (resp != null) {
           state = resp;

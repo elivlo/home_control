@@ -7,7 +7,7 @@ import 'package:home_control/communication/communication.dart';
 class SonoffMinFirmware extends CommunicationHandler{
   SonoffMinFirmware(String hostname, int port) : super(hostname, port);
 
-  Future<bool> getState() async {
+  Future<bool> getStateBool(int relayNumber) async {
     int state;
     Socket socket = await Socket.connect(hostname, port);
 
@@ -29,7 +29,7 @@ class SonoffMinFirmware extends CommunicationHandler{
     return false;
   }
 
-  Future<bool> setState(bool on) async {
+  Future<bool> setStateBool(int relayNumber, bool on) async {
     int state;
     Socket socket = await Socket.connect(hostname, port);
 

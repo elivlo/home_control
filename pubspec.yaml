@@ -25,6 +25,7 @@ dependencies:
   package_info: ^0.4.0+16
   connectivity: ^2.0.2
   url_launcher: ^5.7.10
+  sprintf: ^5.0.0
   test: ^1.15.7
 
 

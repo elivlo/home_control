@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:sprintf/sprintf.dart';
 import 'dart:async';
 
 import 'package:home_control/communication/communication.dart';
@@ -8,9 +9,9 @@ import 'package:home_control/communication/communication.dart';
 class TasmotaHTTPConnector extends CommunicationHandler {
   TasmotaHTTPConnector(String hostname) : super(hostname, 80);
 
-  Future<bool> getState() async {
+  Future<bool> getStateBool(int relayNumber) async {
     bool state = false;
-    Future<http.Response> resp = http.get('http://'+hostname+'/cm?cmnd=Power');
+    Future<http.Response> resp = http.get(sprintf('http://%s/cm?cmnd=Power%d', [hostname, relayNumber]));
 
     await resp.then((value) => {
       if (value.body.contains("ON")){
@@ -20,13 +21,13 @@ class TasmotaHTTPConnector extends CommunicationHandler {
     return state;
   }
 
-  Future<bool> setState(bool on) async {
+  Future<bool> setStateBool(int relayNumber, bool on) async {
     bool state = false;
     Future<http.Response> resp;
     if (on) {
-      resp = http.get('http://'+hostname+'/cm?cmnd=Power%20On');
+      resp = http.get(sprintf('http://%s/cm?cmnd=Power%d%%20On', [hostname, relayNumber]));
     } else {
-      resp = http.get('http://'+hostname+'/cm?cmnd=Power%20Off');
+      resp = http.get(sprintf('http://%s/cm?cmnd=Power%d%%20Off', [hostname, relayNumber]));
     }
 
     await resp.then((value) => {
