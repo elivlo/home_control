@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
+import 'package:home_control/deviceControlWidgets/onePhaseDimmer.dart';
 import 'package:home_control/deviceControlWidgets/switchButton.dart';
 
 // NewDevicePage Widget shown when clicked on FloatingActionButton
@@ -21,7 +22,8 @@ class _NewDevicePage extends State<NewDevicePage> {
   void initState() {
     selDeviceName = SimpleSwitch().deviceNAME;
     devs = {
-      SimpleSwitch().deviceNAME: SimpleSwitchConfig(page: widget.page)
+      SimpleSwitch().deviceNAME: SimpleSwitchConfig(page: widget.page),
+      OnePhaseDimmer().deviceNAME: OnePhaseDimmerConfig(page: widget.page)
     };
     config = devs[SimpleSwitch().deviceNAME];
   }
