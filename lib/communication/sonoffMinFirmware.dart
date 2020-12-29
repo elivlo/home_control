@@ -7,6 +7,7 @@ import 'package:home_control/communication/communication.dart';
 class SonoffMinFirmware extends CommunicationHandler{
   SonoffMinFirmware(String hostname, int port) : super(hostname, port);
 
+  @override
   Future<bool> getStateBool(int relayNumber) async {
     int state;
     Socket socket = await Socket.connect(hostname, port);
@@ -29,6 +30,7 @@ class SonoffMinFirmware extends CommunicationHandler{
     return false;
   }
 
+  @override
   Future<bool> setStateBool(int relayNumber, bool on) async {
     int state;
     Socket socket = await Socket.connect(hostname, port);
@@ -53,5 +55,15 @@ class SonoffMinFirmware extends CommunicationHandler{
       return true;
     }
     return false;
+  }
+
+  @override
+  Future<int> getDimmState(int relayNumber) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<int> setDimmState(int relayNumber, int dimmState) {
+    throw UnimplementedError();
   }
 }
