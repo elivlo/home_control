@@ -13,14 +13,21 @@ class NewDevicePage extends StatefulWidget {
 }
 
 class _NewDevicePage extends State<NewDevicePage> {
+  String selDeviceName;
+  Map<String, DeviceConfig> devs;
+  DeviceConfig config;
+
+  @override
+  void initState() {
+    selDeviceName = SimpleSwitch().deviceNAME;
+    devs = {
+      SimpleSwitch().deviceNAME: SimpleSwitchConfig(page: widget.page)
+    };
+    config = devs[SimpleSwitch().deviceNAME];
+  }
+
   @override
   Widget build(BuildContext context) {
-    String selDeviceName = SimpleSwitch().deviceNAME;
-    final Map<String, DeviceConfig> devs = {
-      SimpleSwitch().deviceNAME: SimpleSwitchConfig(page: widget.page),
-    };
-    DeviceConfig config = devs[SimpleSwitch().deviceNAME];
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Add new device"),
@@ -41,6 +48,7 @@ class _NewDevicePage extends State<NewDevicePage> {
                         config = devs[value];
                         config.clearFields();
                       });
+                      print(selDeviceName);
                     },
                     items: devs.keys.map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
