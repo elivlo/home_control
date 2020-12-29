@@ -26,6 +26,7 @@ class _NewDevicePage extends State<NewDevicePage> {
       OnePhaseDimmer().deviceNAME: OnePhaseDimmerConfig(page: widget.page)
     };
     config = devs[SimpleSwitch().deviceNAME];
+    super.initState();
   }
 
   @override
