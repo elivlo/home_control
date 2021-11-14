@@ -1,13 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:sprintf/sprintf.dart';
 import 'dart:async';
 
 import 'package:home_control/communication/communication.dart';
 
-// SonoffMinFirmware to controll all Tasmota Devices
+// SonoffMinFirmware to control all Tasmota Devices
 // TODO: May split in sub Classes when it gets bigger
 class TasmotaHTTPConnector extends CommunicationHandler {
   TasmotaHTTPConnector(String hostname) : super(hostname, 80);
@@ -15,7 +14,8 @@ class TasmotaHTTPConnector extends CommunicationHandler {
   @override
   Future<bool> getStateBool(int relayNumber) async {
     bool state = false;
-    Future<http.Response> resp = http.get(sprintf('http://%s/cm?cmnd=Power%d', [hostname, relayNumber]));
+    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d", [relayNumber])});
+    Future<http.Response> resp = http.get(uri);
 
     await resp.then((value) => {
       if (value.body.contains("ON")){
@@ -30,9 +30,11 @@ class TasmotaHTTPConnector extends CommunicationHandler {
     bool state = false;
     Future<http.Response> resp;
     if (on) {
-      resp = http.get(sprintf('http://%s/cm?cmnd=Power%d%%20On', [hostname, relayNumber]));
+      Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d On", [relayNumber])});
+      resp = http.get(uri);
     } else {
-      resp = http.get(sprintf('http://%s/cm?cmnd=Power%d%%20Off', [hostname, relayNumber]));
+      Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d Off", [relayNumber])});
+      resp = http.get(uri);
     }
 
     await resp.then((value) => {
@@ -46,7 +48,8 @@ class TasmotaHTTPConnector extends CommunicationHandler {
   @override
   Future<int> getDimmState(int relayNumber) async {
     Map<String, dynamic> result;
-    Future<http.Response> resp = http.get(sprintf('http://%s/cm?cmnd=Channel%d', [hostname, relayNumber]));
+    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Channel%d", [relayNumber])});
+    Future<http.Response> resp = http.get(uri);
 
     await resp.then((value) => {
       result = jsonDecode(value.body)
@@ -57,7 +60,8 @@ class TasmotaHTTPConnector extends CommunicationHandler {
   @override
   Future<int> setDimmState(int relayNumber, int dimmState) async {
     Map<String, dynamic> result;
-    Future<http.Response> resp = http.get(sprintf('http://%s/cm?cmnd=Channel%d%%20%d', [hostname, relayNumber, dimmState]));
+    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Channel%d %d", [relayNumber, dimmState])});
+    Future<http.Response> resp = http.get(uri);
 
     await resp.then((value) => {
       result = jsonDecode(value.body)

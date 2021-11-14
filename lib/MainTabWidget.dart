@@ -1,13 +1,16 @@
+import 'dart:convert';
+
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
+import 'package:home_control/deviceControlWidgets/onePhaseDimmer.dart';
 import 'package:home_control/deviceControlWidgets/switchButton.dart';
 
 import 'package:home_control/subPages/pageNewDevice.dart';
 import 'package:home_control/subPages/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:sqflite/sqflite.dart';
-
 
 // HomeController contains data and methods used by other child widgets
 class HomeController extends InheritedWidget {
@@ -56,7 +59,6 @@ class _MainTabsState extends State<MainTabs>
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
     _tabController.addListener(_handleTabIndex);
     _loadConfig();
-    _createAndLoadDB();
     connection = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       setState(() {
         result == ConnectivityResult.wifi ? _wifiConnection = true : _wifiConnection = false;
@@ -120,11 +122,6 @@ class _MainTabsState extends State<MainTabs>
   // _bottomButtons() returns FloatingButtons for adding Devices
   Widget _bottomButtons() {
     if (_tabController.index + 1 == _tabController.length) {
-      /*return FloatingActionButton(
-        elevation: 3.0,
-        mini: true,
-        onPressed: null,
-      );*/
       return null;
     } else {
       return FloatingActionButton(
@@ -137,7 +134,9 @@ class _MainTabsState extends State<MainTabs>
               MaterialPageRoute(builder: (BuildContext context) {
                 return NewDevicePage(_tabController.index);
               }));
-          _addControlItem(device.page, device);
+          if (device != null) {
+            _addControlItem(device.data.page, device);
+          }
         },
       );
     }
@@ -150,39 +149,58 @@ class _MainTabsState extends State<MainTabs>
     if (_pollingTime == null || _pollingTime.isNaN) {
       _pollingTime = 2;
     }
+
+    final devicesOne = prefs.getStringList("devicesOne");
+    if (devicesOne == null) {
+      prefs.setStringList("devicesOne", []);
+    } else {
+      for (var device in devicesOne) {
+        firstList.add(_loadFromJson(jsonDecode(device)));
+      }
+    }
+
+    final devicesTwo = prefs.getStringList("devicesTwo");
+    if (devicesTwo == null) {
+      prefs.setStringList("devicesTwo", []);
+    } else {
+      for (var device in devicesTwo) {
+        secondList.add(_loadFromJson(jsonDecode(device)));
+      }
+    }
   }
 
-  // _createAndLoadDB() loads all Devices stored in Database and delete entry when not a valid Device
-  void _createAndLoadDB() async {
-    var db = await openDatabase("state.db", onCreate: (db, version) async {
-      await db.execute('CREATE TABLE Devices (id INTEGER PRIMARY KEY, page INTEGER, type TEXT, name TEXT, hostname TEXT, tasmota INTEGER)');
-    }, onUpgrade: (db, oldDB, newDB) async {
-      await db.execute('ALTER TABLE Devices ADD tasmota INTEGER');
-    }, version: 1, );
-    List<Map> list = await db.rawQuery('SELECT * FROM Devices');
-    setState(() {
-      for (var item in list) {
-        var type = item["type"].toString();
+  void _appendDeviceToConfig(int page, DeviceControl d) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var jsonString = jsonEncode(d.data.toJson());
+    if (page == 0) {
+      var devicesOne = prefs.getStringList("devicesOne");
+      devicesOne.add(jsonString);
+      prefs.setStringList("devicesOne", devicesOne);
+    } else {
+      var devicesTwo = prefs.getStringList("devicesTwo");
+      devicesTwo.add(jsonString);
+      prefs.setStringList("devicesTwo", devicesTwo);
+    }
+  }
 
-        switch (type) {
-          case "Simple Switch": {
-            _loadDBItem(item["page"], SimpleSwitch(key: UniqueKey(), name: item["name"].toString(), hostname: item["hostname"].toString(), page: item["page"], tasmota: item["tasmota"] == 1 ? true : false));
-            break;
-          }
-          default: {
-            db.delete("Devices", where: "id", whereArgs: item["id"]);
-            break;
-          }
-        }
-      }
-    });
+  DeviceControl _loadFromJson(Map<String, dynamic> json) {
+    var data = DeviceData.fromJson(json);
+    var key = UniqueKey();
+
+    switch (data.type) {
+      case SimpleSwitch.deviceType:
+        return SimpleSwitch(key: key, data: data);
+      case OnePhaseDimmer.deviceType:
+        return OnePhaseDimmer(key: key, data: data);
+    }
+    throw Exception(sprintf("Device %s not found!", data.type));
   }
 
   void _handleTabIndex() {
     setState(() {});
   }
 
-  void _reorderFirstList(int oldIndex, int newIndex) {
+  Future<void> _reorderFirstList(int oldIndex, int newIndex) async {
     setState(() {
       final Widget tmp = firstList.removeAt(oldIndex);
       if (newIndex > oldIndex) {
@@ -190,9 +208,13 @@ class _MainTabsState extends State<MainTabs>
       }
       firstList.insert(newIndex, tmp);
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var list = prefs.getStringList("devicesOne");
+    list.insert(newIndex, list.removeAt(oldIndex));
+    prefs.setStringList("devicesOne", list);
   }
 
-  void _reorderSecondList(int oldIndex, int newIndex) {
+  Future<void> _reorderSecondList(int oldIndex, int newIndex) async {
     setState(() {
       final Widget tmp = secondList.removeAt(oldIndex);
       if (newIndex > oldIndex) {
@@ -200,14 +222,10 @@ class _MainTabsState extends State<MainTabs>
       }
       secondList.insert(newIndex, tmp);
     });
-  }
-
-  void _loadDBItem(int page, DeviceControl d) {
-    if (page == 0) {
-      firstList.add(d);
-    } else {
-      secondList.add(d);
-    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var list = prefs.getStringList("devicesTwo");
+    list.insert(newIndex, list.removeAt(oldIndex));
+    prefs.setStringList("devicesTwo", list);
   }
 
   void _addControlItem(int page, DeviceControl d) async {
@@ -218,7 +236,7 @@ class _MainTabsState extends State<MainTabs>
         secondList.add(d);
       }
     });
-    d.saveToDataBase();
+    _appendDeviceToConfig(page, d);
   }
 
   void _removeControlItem(int page, DeviceControl d) async {
@@ -229,8 +247,17 @@ class _MainTabsState extends State<MainTabs>
         secondList.remove(d);
       }
     });
-    var db = await openDatabase("state.db");
-    await db.delete("Devices", where: "name = ? AND hostname = ?", whereArgs: [d.name, d.hostname]);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var jsonString = jsonEncode(d.data.toJson());
+    if (page == 0) {
+      var devicesOne = prefs.getStringList("devicesOne");
+      devicesOne.remove(jsonString);
+      prefs.setStringList("devicesOne", devicesOne);
+    } else {
+      var devicesTwo = prefs.getStringList("devicesTwo");
+      devicesTwo.remove(jsonString);
+      prefs.setStringList("devicesTwo", devicesTwo);
+    }
   }
 
   void _changePollingTimer(int time) async {

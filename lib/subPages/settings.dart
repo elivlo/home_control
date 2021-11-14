@@ -18,7 +18,7 @@ class Settings extends StatefulWidget {
   }
 }
 
-class SettingsState extends State<Settings> {
+class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
 
   String info = "";
 
@@ -113,4 +113,7 @@ class SettingsState extends State<Settings> {
       await launch(url);
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
