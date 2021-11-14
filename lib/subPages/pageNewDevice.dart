@@ -20,12 +20,12 @@ class _NewDevicePage extends State<NewDevicePage> {
 
   @override
   void initState() {
-    selDeviceName = SimpleSwitch().deviceNAME;
+    selDeviceName = SimpleSwitch.deviceType;
     devs = {
-      SimpleSwitch().deviceNAME: SimpleSwitchConfig(page: widget.page),
-      OnePhaseDimmer().deviceNAME: OnePhaseDimmerConfig(page: widget.page)
+      SimpleSwitch.deviceType: SimpleSwitchConfig(page: widget.page),
+      OnePhaseDimmer.deviceType: OnePhaseDimmerConfig(page: widget.page)
     };
-    config = devs[SimpleSwitch().deviceNAME];
+    config = devs[SimpleSwitch.deviceType];
     super.initState();
   }
 

@@ -6,33 +6,50 @@ import 'package:string_validator/string_validator.dart';
 
 import '../MainTabWidget.dart';
 
-const List<String> devices = [
-  "Simple Switch",
-];
+class DeviceData {
+  final String name;
+  final String hostname;
+  final int page;
+  final String type;
+  final Map<String, dynamic> config;
+
+  DeviceData(this.name, this.hostname, this.page, this.config, this.type);
+
+  DeviceData.fromJson(Map<String, dynamic> json)
+      : name = json["name"],
+        hostname = json["hostname"],
+        page = json["page"],
+        config = json["config"],
+        type = json["type"];
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "hostname": hostname,
+        "page": page,
+        "config": config,
+        "type": type
+      };
+}
 
 // DeviceControl Widget Base for all Devices to control
 abstract class DeviceControl extends StatefulWidget {
-  DeviceControl({Key key, @required this.name, @required this.hostname, @required this.page, @required this.deviceNAME}) : super(key: key);
+  final DeviceData data;
 
-  // This is the general name for this type
-  final String deviceNAME;
+  DeviceControl({Key key, @required this.data}) : super(key: key);
 
-  final int page;
-  final String name;
-  final String hostname;
-
-  void saveToDataBase();
+  Map<String, dynamic> toJson() => data.toJson();
 }
 
 // DeviceControlState Widget Base for all Devices to control
-abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
+abstract class DeviceControlState<T extends DeviceControl> extends State<T> with AutomaticKeepAliveClientMixin {
   Timer poller;
   CommunicationHandler server;
 
   void setupCommunicationHandler();
+
   void pollDeviceStatus();
 
-  void startTimer(int sec){
+  void startTimer(int sec) {
     if (poller != null) {
       poller.cancel();
     }
@@ -44,18 +61,36 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final HomeController h = HomeController.of(context);
+    if (h != null) {
+      if (!h.wifiConnection) {
+        poller.cancel();
+      } else if (h.pollingTime > 0) {
+        startTimer(h.pollingTime);
+      }
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     setupCommunicationHandler();
-    Timer.run(() { pollDeviceStatus(); });
+    Timer.run(() {
+      pollDeviceStatus();
+    });
     startTimer(2);
   }
 
   @override
-  void dispose(){
+  void dispose() {
     poller.cancel();
     super.dispose();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 // DeviceConfig Widget Base for add/setup DeviceControl to List
@@ -77,13 +112,14 @@ abstract class DeviceConfig extends StatefulWidget {
   }
 
   String validateHostname(String value) {
-    RegExp hostname = RegExp(r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$');
+    RegExp hostname = RegExp(
+        r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$');
 
     if (value.isEmpty) {
       return "Please enter a hostname";
     }
     if (!hostname.hasMatch(value)) {
-      if (!isIP(value)){
+      if (!isIP(value)) {
         return "Please enter a valid IP or hostname";
       }
       return null;

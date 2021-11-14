@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:sprintf/sprintf.dart';
 import 'dart:async';
@@ -32,16 +31,13 @@ class TasmotaHTTPConnector extends CommunicationHandler {
     Future<http.Response> resp;
     if (on) {
       Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d On", [relayNumber])});
-      print(uri);
       resp = http.get(uri);
     } else {
       Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d Off", [relayNumber])});
-      print(uri);
       resp = http.get(uri);
     }
 
     await resp.then((value) => {
-      print(value.body.toString()),
       if (value.body.contains("ON")){
         state = true
       }
