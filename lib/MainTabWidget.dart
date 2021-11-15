@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 import 'package:home_control/deviceControlWidgets/onePhaseDimmer.dart';
 import 'package:home_control/deviceControlWidgets/switchButton.dart';
@@ -154,18 +155,32 @@ class _MainTabsState extends State<MainTabs>
     if (devicesOne == null) {
       prefs.setStringList("devicesOne", []);
     } else {
+      List<String> save = [];
       for (var device in devicesOne) {
-        firstList.add(_loadFromJson(jsonDecode(device)));
+        try {
+          firstList.add(_loadFromJson(jsonDecode(device)));
+          save.add(device);
+        } on MissingPluginException {
+          print("Remove " + device.toString());
+        }
       }
+      prefs.setStringList("devicesOne", save);
     }
 
     final devicesTwo = prefs.getStringList("devicesTwo");
     if (devicesTwo == null) {
       prefs.setStringList("devicesTwo", []);
     } else {
+      List<String> save = [];
       for (var device in devicesTwo) {
-        secondList.add(_loadFromJson(jsonDecode(device)));
+        try {
+          secondList.add(_loadFromJson(jsonDecode(device)));
+          save.add(device);
+        } on MissingPluginException {
+          print("Remove " + device.toString());
+        }
       }
+      prefs.setStringList("devicesTwo", save);
     }
   }
 
@@ -193,7 +208,7 @@ class _MainTabsState extends State<MainTabs>
       case OnePhaseDimmer.deviceType:
         return OnePhaseDimmer(key: key, data: data);
     }
-    throw Exception(sprintf("Device %s not found!", data.type));
+    throw MissingPluginException(sprintf("Device %s not found!", [data.type]));
   }
 
   void _handleTabIndex() {
