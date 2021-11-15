@@ -8,7 +8,8 @@ import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 class OnePhaseDimmer extends DeviceControl {
   OnePhaseDimmer({@required Key key, @required data})
       : super(key: key, data: data);
-  static const deviceType = "One Phase Dimmer";
+  static const deviceType = "OnePhaseDimmer";
+  static const deviceLabel = "Dimmer";
 
   @override
   OnePhaseDimmerState createState() {

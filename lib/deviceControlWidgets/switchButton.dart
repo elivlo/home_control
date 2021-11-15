@@ -7,7 +7,8 @@ import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 // SimpleSwitch Widget to use with Tasmota (Sonoff Basic) when only on or off is needed
 // Also for use with my MinSonoffBasicFirmware
 class SimpleSwitch extends DeviceControl {
-  static const deviceType = "Simple Switch";
+  static const deviceType = "SimpleSwitch";
+  static const deviceLabel = "Switch";
 
   SimpleSwitch({
     @required Key key,
