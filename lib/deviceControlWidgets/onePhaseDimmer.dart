@@ -87,7 +87,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
               ],
             ),
           ),
-          Switch(
+          Switch.adaptive(
             value: state,
             activeColor: Colors.amber,
             onChanged: (bool s) {
@@ -100,7 +100,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
         ],
       ),
       children: [
-        Slider(
+        Slider.adaptive(
             min: 0,
             max: 100,
             value: _sliderValue,

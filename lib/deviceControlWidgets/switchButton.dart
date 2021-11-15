@@ -92,7 +92,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
               ],
             ),
           ),
-          Switch(
+          Switch.adaptive(
             value: state,
             activeColor: Colors.amber,
             onChanged: makeRequest,
@@ -176,7 +176,7 @@ class SwitchButtonConfigState extends State<SimpleSwitchConfig> {
               Row(
                 children: [
                   Text("Tasmota:"),
-                  Switch(
+                  Switch.adaptive(
                     value: _tasmota,
                     activeColor: Colors.amber,
                     onChanged: (bool b) {
