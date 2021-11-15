@@ -19,11 +19,11 @@ class OnePhaseDimmer extends DeviceControl {
 class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
   double _sliderValue = 0;
   bool state = false;
-  int dimm = 0;
+  bool dragging = false;
 
   getStateString(bool s) {
     String state = s ? "On" : "Off";
-    state += sprintf("\t%d%%", [dimm]);
+    state += sprintf("\t%d%%", [_sliderValue.toInt()]);
     return state;
   }
 
@@ -34,21 +34,18 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
 
   @override
   void pollDeviceStatus() async {
-    if (server != null) {
+    if (server != null && !dragging) {
       var s = await server.getStateBool(1);
       var d = await server.getDimmState(1);
-      if (this.mounted) {
+      if (this.mounted && !dragging) {
         setState(() {
           if (s != null) {
             state = s;
           }
           if (d != null) {
-            dimm = d;
+            _sliderValue = d.toDouble();
           }
         });
-        if (d != null) {
-          _sliderValue = d.toDouble();
-        }
       }
     }
   }
@@ -58,21 +55,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
     final HomeController h = HomeController.of(context);
 
     switchDimmer(bool b) async {
-      var resp = await server.setStateBool(1, b);
-      setState(() {
-        if (resp != null) {
-          state = resp;
-        }
-      });
-    }
-
-    dimmDimmer(int d) async {
-      var resp = await server.setDimmState(1, d);
-      setState(() {
-        if (resp != null) {
-          dimm = resp;
-        }
-      });
+      server.setStateBool(1, b);
     }
 
     return Container(
@@ -107,7 +90,12 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
           Switch(
             value: state,
             activeColor: Colors.amber,
-            onChanged: switchDimmer,
+            onChanged: (bool s) {
+              switchDimmer(s);
+              setState(() {
+                state = s;
+              });
+            },
           ),
         ],
       ),
@@ -116,15 +104,22 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
             min: 0,
             max: 100,
             value: _sliderValue,
+            onChangeStart: (double value) {
+              dragging = true;
+            },
+            onChangeEnd: (double value) {
+              if (value.round() == 0) {
+                switchDimmer(false);
+                setState(() {
+                  state = false;
+                });
+              }
+              server.setDimmState(1, value.round());
+              dragging = false;
+            },
             onChanged: (double value) {
               setState(() {
-                if (value.round() == 0) {
-                  _sliderValue = 0.0;
-                  switchDimmer(false);
-                } else {
-                  _sliderValue = value;
-                  dimmDimmer(value.round());
-                }
+                _sliderValue = value;
               });
             }),
         Row(
