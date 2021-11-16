@@ -132,82 +132,37 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
 // SimpleSwitchConfig to use with Tasmota (Sonoff Basic) when only on or off is needed
 // Also for use with my MinSonoffBasicFirmware
 class SimpleSwitchConfig extends DeviceConfig {
-  SimpleSwitchConfig({Key key, @required page}) : super(key: key, page: page);
+  SimpleSwitchConfig({@required page}) : super(page: page);
+  bool _tasmota = false;
 
   @override
-  SwitchButtonConfigState createState() => new SwitchButtonConfigState();
-
-  @override
-  void clearFields() {
-    name.clear();
-    hostname.clear();
-  }
-}
-
-class SwitchButtonConfigState extends State<SimpleSwitchConfig> {
-  final _formKey = GlobalKey<FormState>();
-  bool _tasmota = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.grey.shade200,
-        padding: const EdgeInsets.all(5),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                "Simple Switch:",
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              TextFormField(
-                controller: widget.name,
-                decoration: const InputDecoration(
-                  hintText: "Device name",
-                ),
-                validator: widget.validateName,
-              ),
-              TextFormField(
-                controller: widget.hostname,
-                decoration: const InputDecoration(hintText: "Hostname / IP"),
-                validator: widget.validateHostname,
-              ),
-              Row(
-                children: [
-                  Text("Tasmota:"),
-                  Switch.adaptive(
-                    value: _tasmota,
-                    activeColor: Colors.amber,
-                    onChanged: (bool b) {
-                      setState(() {
-                        _tasmota = b;
-                      });
-                    },
-                  ),
-                ],
-              ),
-              FloatingActionButton(
-                child: Icon(Icons.check),
-                elevation: 3.0,
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    Map<String, dynamic> conf = new Map();
-                    conf["tasmota"] = _tasmota;
-                    var data = DeviceData(
-                        widget.name.text,
-                        widget.hostname.text,
-                        widget.page,
-                        conf,
-                        SimpleSwitch.deviceType);
-                    Navigator.pop(
-                        context, SimpleSwitch(key: UniqueKey(), data: data));
-                  }
-                },
-              ),
-            ],
-          ),
+  void createDeviceControl(BuildContext context, String name, String hostname) {
+    var data =
+    DeviceData(name, hostname, page, {"tasmota": _tasmota}, SimpleSwitch.deviceType);
+    Navigator.pop(
+        context,
+        SimpleSwitch(
+          key: UniqueKey(),
+          data: data,
         ));
   }
+
+  @override
+  Widget customConfigWidgets(void setState(void Function() fn)) {
+    return Row(
+      children: [
+        Text("Tasmota:"),
+        Switch.adaptive(
+          value: _tasmota,
+          activeColor: Colors.amber,
+          onChanged: (bool b) {
+            setState(() {
+              _tasmota = b;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
 }

@@ -154,69 +154,22 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
 // SimpleSwitchConfig to use with Tasmota (Sonoff Basic) when only on or off is needed
 // Also for use with my MinSonoffBasicFirmware
 class OnePhaseDimmerConfig extends DeviceConfig {
-  OnePhaseDimmerConfig({Key key, @required page}) : super(key: key, page: page);
+  OnePhaseDimmerConfig({@required page}) : super(page: page);
 
   @override
-  OnePhaseDimmerConfigState createState() => new OnePhaseDimmerConfigState();
-
-  @override
-  void clearFields() {
-    name.clear();
-    hostname.clear();
-  }
-}
-
-class OnePhaseDimmerConfigState extends State<OnePhaseDimmerConfig> {
-  final _formKey = GlobalKey<FormState>();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        color: Colors.grey.shade200,
-        padding: const EdgeInsets.all(5),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                "One Phase Dimmer:",
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              TextFormField(
-                controller: widget.name,
-                decoration: const InputDecoration(
-                  hintText: "Device name",
-                ),
-                validator: widget.validateName,
-              ),
-              TextFormField(
-                controller: widget.hostname,
-                decoration: const InputDecoration(hintText: "Hostname / IP"),
-                validator: widget.validateHostname,
-              ),
-              FloatingActionButton(
-                child: Icon(Icons.check),
-                elevation: 3.0,
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    var data = DeviceData(
-                        widget.name.text,
-                        widget.hostname.text,
-                        widget.page,
-                        null,
-                        OnePhaseDimmer.deviceType);
-                    Navigator.pop(
-                        context,
-                        OnePhaseDimmer(
-                          key: UniqueKey(),
-                          data: data,
-                        ));
-                  }
-                },
-              ),
-            ],
-          ),
+  void createDeviceControl(BuildContext context, String name, String hostname) {
+    var data =
+        DeviceData(name, hostname, page, null, OnePhaseDimmer.deviceType);
+    Navigator.pop(
+        context,
+        OnePhaseDimmer(
+          key: UniqueKey(),
+          data: data,
         ));
+  }
+
+  @override
+  Widget customConfigWidgets(void setState(void Function() fn)) {
+    return Row();
   }
 }
