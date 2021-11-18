@@ -94,36 +94,11 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
 }
 
 // DeviceConfig Widget Base for add/setup DeviceControl to List
-abstract class DeviceConfig extends StatefulWidget {
-  DeviceConfig({Key key, @required this.page}) : super(key: key);
-
-  final TextEditingController name = TextEditingController();
-  final TextEditingController hostname = TextEditingController();
+abstract class DeviceConfig {
+  DeviceConfig({@required this.page});
 
   final int page;
+  void createDeviceControl(BuildContext context, String name, String hostname);
 
-  void clearFields();
-
-  String validateName(String value) {
-    if (value.isEmpty) {
-      return "Please enter a name";
-    }
-    return null;
-  }
-
-  String validateHostname(String value) {
-    RegExp hostname = RegExp(
-        r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$');
-
-    if (value.isEmpty) {
-      return "Please enter a hostname";
-    }
-    if (!hostname.hasMatch(value)) {
-      if (!isIP(value)) {
-        return "Please enter a valid IP or hostname";
-      }
-      return null;
-    }
-    return null;
-  }
+  Widget customConfigWidgets(void setState(void Function() fn));
 }
