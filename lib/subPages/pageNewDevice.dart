@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 import 'package:home_control/deviceControlWidgets/onePhaseDimmer.dart';
@@ -19,8 +17,8 @@ class NewDevicePage extends StatefulWidget {
 class _NewDevicePage extends State<NewDevicePage> {
   final _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
-  Map<String, DeviceConfig> devs;
-  DeviceConfig config;
+  Map<String, DeviceConfig>? devs;
+  DeviceConfig? config;
 
   var name = TextEditingController();
   var hostname = TextEditingController();
@@ -31,7 +29,7 @@ class _NewDevicePage extends State<NewDevicePage> {
       SimpleSwitch.deviceLabel: SimpleSwitchConfig(page: widget.page),
       OnePhaseDimmer.deviceLabel: OnePhaseDimmerConfig(page: widget.page)
     };
-    config = devs[SimpleSwitch.deviceLabel];
+    config = devs![SimpleSwitch.deviceLabel];
     super.initState();
   }
 
@@ -79,7 +77,7 @@ class _NewDevicePage extends State<NewDevicePage> {
                       decoration: const InputDecoration(hintText: "Hostname / IP"),
                       validator: _validateHostname,
                     ),
-                    config.customConfigWidgets(setState)
+                    config!.customConfigWidgets(setState)
                   ],
                 ),
               )
@@ -106,9 +104,9 @@ class _NewDevicePage extends State<NewDevicePage> {
     setState(() => _currentStep -= 1) : null;
   }
 
-  chipList() {
+  Wrap chipList() {
     List<Widget> childs = [];
-    devs.forEach((key, value) {
+    devs?.forEach((key, value) {
       childs.add(_buildChip(key, value));
     });
     return Wrap(
@@ -142,14 +140,14 @@ class _NewDevicePage extends State<NewDevicePage> {
     );
   }
 
-  Widget _floatingButton(BuildContext context) {
+  Widget? _floatingButton(BuildContext context) {
     if (_currentStep == 1) {
       return FloatingActionButton(
         child: Icon(Icons.check),
         elevation: 3.0,
         onPressed: () {
-          if (_formKey.currentState.validate()) {
-            config.createDeviceControl(context, name.text, hostname.text);
+          if (_formKey.currentState!.validate()) {
+            config?.createDeviceControl(context, name.text, hostname.text);
           }
         },
       );
@@ -157,18 +155,18 @@ class _NewDevicePage extends State<NewDevicePage> {
     return null;
   }
 
-  String _validateName(String value) {
-    if (value.isEmpty) {
+  String? _validateName(String? value) {
+    if (value!.isEmpty) {
       return "Please enter a name";
     }
     return null;
   }
 
-  String _validateHostname(String value) {
+  String? _validateHostname(String? value) {
     RegExp hostname = RegExp(
         r'^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$');
 
-    if (value.isEmpty) {
+    if (value!.isEmpty) {
       return "Please enter a hostname";
     }
     if (!hostname.hasMatch(value)) {

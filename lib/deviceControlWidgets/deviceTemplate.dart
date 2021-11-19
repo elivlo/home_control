@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:home_control/communication/communication.dart';
-import 'package:string_validator/string_validator.dart';
 
 import '../MainTabWidget.dart';
 

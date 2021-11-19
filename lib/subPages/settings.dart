@@ -35,6 +35,7 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final HomeController h = HomeController.of(context);
 
     return Container(
@@ -109,9 +110,7 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
   }
 
   void _launchBrowser(String url) async {
-    if (await canLaunch(url) != null) {
-      await launch(url);
-    }
+    await launch(url);
   }
 
   @override
