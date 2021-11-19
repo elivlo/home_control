@@ -9,30 +9,24 @@ class SonoffMinFirmware extends CommunicationHandler{
 
   @override
   Future<bool> getStateBool(int relayNumber) async {
-    int state;
     Socket socket = await Socket.connect(hostname, port);
 
     socket.add([3]);
 
-    await socket.first.then((value) {
-      state = value.first;
+    return socket.first.then((value) {
+      socket.close();
+      if (value.first == 1) {
+        return true;
+      }
+      return false;
     }, onError: (err){
-      state = null;
+      socket.close();
+      throw err;
     });
-
-    socket.close();
-
-    if (state == null) {
-      return null;
-    } else if (state == 1) {
-      return true;
-    }
-    return false;
   }
 
   @override
   Future<bool> setStateBool(int relayNumber, bool on) async {
-    int state;
     Socket socket = await Socket.connect(hostname, port);
 
     if (on) {
@@ -41,20 +35,16 @@ class SonoffMinFirmware extends CommunicationHandler{
       socket.add([2]);
     }
 
-    await socket.first.then((value) {
-      state = value.first;
+    return socket.first.then((value) {
+      socket.close();
+      if (value.first == 1) {
+        return true;
+      }
+      return false;
     }, onError: (err){
-      state = null;
+      socket.close();
+      throw err;
     });
-
-    socket.close();
-
-    if (state == null) {
-      return null;
-    } else if (state == 1) {
-      return true;
-    }
-    return false;
   }
 
   @override
