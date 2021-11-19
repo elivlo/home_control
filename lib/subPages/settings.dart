@@ -64,7 +64,8 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
                         hintText: "Polling time in seconds",
                       ),
                       onChanged: (value){
-                        h?.changePollingTimer(int.parse(value));
+                        var pollingTime = int.tryParse(value);
+                        h?.changePollingTimer(pollingTime);
                       },
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       autovalidateMode: AutovalidateMode.always,

@@ -41,6 +41,7 @@ abstract class DeviceControl extends StatefulWidget {
 
 // DeviceControlState Widget Base for all Devices to control
 abstract class DeviceControlState<T extends DeviceControl> extends State<T> with AutomaticKeepAliveClientMixin {
+  var timerTime = -1;
   Timer? poller;
   CommunicationHandler? server;
 
@@ -49,11 +50,14 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
   void pollDeviceStatus();
 
   void startTimer(int sec) {
-    poller?.cancel();
-    if (sec > 0) {
-      poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
-        pollDeviceStatus();
-      });
+    if (sec != timerTime) {
+      timerTime = sec;
+      poller?.cancel();
+      if (sec > 0) {
+        poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
+          pollDeviceStatus();
+        });
+      }
     }
   }
 
@@ -63,9 +67,8 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
     final HomeController? h = HomeController.of(context);
     if (!h!.wifiConnection) {
       poller?.cancel();
-    } else if (h.pollingTime > 0) {
-      startTimer(h.pollingTime);
     }
+    startTimer(h.pollingTime);
   }
 
   @override
@@ -75,7 +78,6 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
     Timer.run(() {
       pollDeviceStatus();
     });
-    startTimer(2);
   }
 
   @override

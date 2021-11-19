@@ -16,7 +16,7 @@ import 'package:sprintf/sprintf.dart';
 class HomeController extends InheritedWidget {
   final void Function(int page, DeviceControl d) addItem;
   final void Function(int page, DeviceControl d) removeItem;
-  final void Function(int time) changePollingTimer;
+  final void Function(int? time) changePollingTimer;
 
   final bool wifiConnection;
   final int pollingTime;
@@ -46,7 +46,7 @@ class _MainTabsState extends State<MainTabs>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
   
-  late int _pollingTime;
+  int _pollingTime = 0;
   bool _wifiConnection = true;
   var connection;
 
@@ -129,12 +129,14 @@ class _MainTabsState extends State<MainTabs>
         elevation: 3.0,
         mini: true,
         onPressed: () async {
-          DeviceControl device = await Navigator.push(
+          var device = await Navigator.push(
               context,
               MaterialPageRoute(builder: (BuildContext context) {
                 return NewDevicePage(_tabController!.index);
               }));
-          _addControlItem(device.data.page, device);
+          if (device is DeviceControl) {
+            _addControlItem(device.data.page, device);
+          }
         },
       );
     }
@@ -272,11 +274,13 @@ class _MainTabsState extends State<MainTabs>
     }
   }
 
-  void _changePollingTimer(int time) async {
+  void _changePollingTimer(int? time) async {
+    if (time == null)
+      time = 0;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("polling_time", time);
     setState(() {
-      this._pollingTime = time;
+      this._pollingTime = time!;
     });
   }
 }
