@@ -6,7 +6,7 @@ import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
 
 // OnePhaseDimmer Widget to use with Tasmota e.g. a LED strip
 class OnePhaseDimmer extends DeviceControl {
-  OnePhaseDimmer({@required Key key, @required data})
+  OnePhaseDimmer({required Key key, required data})
       : super(key: key, data: data);
   static const deviceType = "OnePhaseDimmer";
   static const deviceLabel = "Dimmer";
@@ -36,16 +36,12 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
   @override
   void pollDeviceStatus() async {
     if (server != null && !dragging) {
-      var s = await server.getStateBool(1);
-      var d = await server.getDimmState(1);
+      var s = await server!.getStateBool(1);
+      var d = await server!.getDimmState(1);
       if (this.mounted && !dragging) {
         setState(() {
-          if (s != null) {
-            state = s;
-          }
-          if (d != null) {
-            _sliderValue = d.toDouble();
-          }
+          state = s;
+          _sliderValue = d.toDouble();
         });
       }
     }
@@ -53,10 +49,11 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final HomeController h = HomeController.of(context);
 
     switchDimmer(bool b) async {
-      server.setStateBool(1, b);
+      server?.setStateBool(1, b);
     }
 
     return Container(
@@ -115,7 +112,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
                   state = false;
                 });
               }
-              server.setDimmState(1, value.round());
+              server?.setDimmState(1, value.round());
               dragging = false;
             },
             onChanged: (double value) {
@@ -130,6 +127,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
             ),
             IconButton(
               icon: Icon(Icons.settings),
+              onPressed: () {  }, // TODO
             )
           ],
         ),

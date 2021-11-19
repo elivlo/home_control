@@ -11,8 +11,8 @@ class SimpleSwitch extends DeviceControl {
   static const deviceLabel = "Switch";
 
   SimpleSwitch({
-    @required Key key,
-    @required data,
+    required Key key,
+    required data,
   }) : super(key: key, data: data);
 
   @override
@@ -30,7 +30,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
 
   @override
   void setupCommunicationHandler() {
-    if (widget.data.config["tasmota"]) {
+    if (widget.data.config?["tasmota"]) {
       server = TasmotaHTTPConnector(widget.data.hostname);
     } else {
       server = SonoffMinFirmware(widget.data.hostname, 80);
@@ -40,7 +40,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   @override
   void pollDeviceStatus() async {
     if (server != null) {
-      var resp = await server.getStateBool(1);
+      var resp = await server?.getStateBool(1);
       if (this.mounted) {
         setState(() {
           if (resp != null) {
@@ -53,10 +53,11 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final HomeController h = HomeController.of(context);
 
     makeRequest(bool b) async {
-      var resp = await server.setStateBool(1, b);
+      var resp = await server?.setStateBool(1, b);
       setState(() {
         if (resp != null) {
           state = resp;
@@ -108,6 +109,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
             ),
             IconButton(
               icon: Icon(Icons.settings),
+              onPressed: () {  }, // TODO
             )
           ],
         ),
