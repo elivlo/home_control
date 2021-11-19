@@ -50,7 +50,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final HomeController h = HomeController.of(context);
+    final HomeController? h = HomeController.of(context);
 
     switchDimmer(bool b) async {
       server?.setStateBool(1, b);
@@ -139,7 +139,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
-                h.removeItem(widget.data.page, this.widget);
+                h?.removeItem(widget.data.page, this.widget);
               },
             )
           ],

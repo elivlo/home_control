@@ -36,7 +36,7 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final HomeController h = HomeController.of(context);
+    final HomeController? h = HomeController.of(context);
 
     return Container(
         child: ListView(
@@ -59,12 +59,12 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
                     flex: 1,
                     child: TextFormField(
                       textAlign: TextAlign.center,
-                      initialValue: h.pollingTime.toString(),
+                      initialValue: h?.pollingTime.toString(),
                       decoration: const InputDecoration(
                         hintText: "Polling time in seconds",
                       ),
                       onChanged: (value){
-                        h.changePollingTimer(int.parse(value));
+                        h?.changePollingTimer(int.parse(value));
                       },
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       autovalidateMode: AutovalidateMode.always,
@@ -76,7 +76,7 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
             ),
             Container(
               alignment: Alignment(0, 0),
-              child: Text(h.wifiConnection ? "Wifi connection: Polling active" : "No Wifi connection: Polling inactive", textAlign: TextAlign.center),
+              child: Text(h!.wifiConnection ? "Wifi connection: Polling active" : "No Wifi connection: Polling inactive", textAlign: TextAlign.center),
               height: 40,
             ),
             Container(

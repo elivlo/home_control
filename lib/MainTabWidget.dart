@@ -22,11 +22,11 @@ class HomeController extends InheritedWidget {
   final bool wifiConnection;
   final int pollingTime;
 
-  const HomeController({@required this.addItem, @required this.removeItem, @required this.changePollingTimer,
-    @required this.wifiConnection, @required this.pollingTime, @required Widget child})
+  const HomeController({required this.addItem, required this.removeItem, required this.changePollingTimer,
+    required this.wifiConnection, required this.pollingTime, required Widget child})
       : super(child: child);
 
-  static HomeController of(BuildContext context) {
+  static HomeController? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<HomeController>();
   }
 

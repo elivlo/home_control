@@ -60,8 +60,8 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final HomeController h = HomeController.of(context);
-    if (!h.wifiConnection) {
+    final HomeController? h = HomeController.of(context);
+    if (!h!.wifiConnection) {
       poller?.cancel();
     } else if (h.pollingTime > 0) {
       startTimer(h.pollingTime);

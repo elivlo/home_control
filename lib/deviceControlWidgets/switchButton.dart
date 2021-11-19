@@ -54,7 +54,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final HomeController h = HomeController.of(context);
+    final HomeController? h = HomeController.of(context);
 
     makeRequest(bool b) async {
       var resp = await server?.setStateBool(1, b);
@@ -121,7 +121,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
             IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
-                h.removeItem(widget.data.page, this.widget);
+                h?.removeItem(widget.data.page, this.widget);
               },
             )
           ],
