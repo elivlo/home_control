@@ -11,7 +11,6 @@ import 'package:home_control/subPages/pageNewDevice.dart';
 import 'package:home_control/subPages/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:sqflite/sqflite.dart';
 
 // HomeController contains data and methods used by other child widgets
 class HomeController extends InheritedWidget {
@@ -45,9 +44,9 @@ class MainTabs extends StatefulWidget {
 
 class _MainTabsState extends State<MainTabs>
     with SingleTickerProviderStateMixin {
-  TabController _tabController;
+  TabController? _tabController;
   
-  int _pollingTime;
+  late int _pollingTime;
   bool _wifiConnection = true;
   var connection;
 
@@ -57,8 +56,8 @@ class _MainTabsState extends State<MainTabs>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
-    _tabController.addListener(_handleTabIndex);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController!.addListener(_handleTabIndex);
     _loadConfig();
     connection = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       setState(() {
@@ -70,8 +69,8 @@ class _MainTabsState extends State<MainTabs>
   @override
   void dispose() {
     super.dispose();
-    _tabController.removeListener(_handleTabIndex);
-    _tabController.dispose();
+    _tabController?.removeListener(_handleTabIndex);
+    _tabController?.dispose();
     connection.cancel();
   }
 
@@ -113,7 +112,7 @@ class _MainTabsState extends State<MainTabs>
             ],
           ),
         ),
-        floatingActionButton: _bottomButtons(),
+        floatingActionButton: _bottomButton(),
       ),
     );
 
@@ -121,8 +120,8 @@ class _MainTabsState extends State<MainTabs>
   }
 
   // _bottomButtons() returns FloatingButtons for adding Devices
-  Widget _bottomButtons() {
-    if (_tabController.index + 1 == _tabController.length) {
+  Widget? _bottomButton() {
+    if (_tabController!.index + 1 == _tabController!.length) {
       return null;
     } else {
       return FloatingActionButton(
@@ -133,11 +132,9 @@ class _MainTabsState extends State<MainTabs>
           DeviceControl device = await Navigator.push(
               context,
               MaterialPageRoute(builder: (BuildContext context) {
-                return NewDevicePage(_tabController.index);
+                return NewDevicePage(_tabController!.index);
               }));
-          if (device != null) {
-            _addControlItem(device.data.page, device);
-          }
+          _addControlItem(device.data.page, device);
         },
       );
     }
@@ -146,10 +143,10 @@ class _MainTabsState extends State<MainTabs>
   // _loadConfig() loads App Preferences
   void _loadConfig() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _pollingTime = prefs.getInt("polling_time");
-    if (_pollingTime == null || _pollingTime.isNaN) {
+    var time = prefs.getInt("polling_time");
+    _pollingTime = time != null ? time : 2;
+    if (_pollingTime.isNaN)
       _pollingTime = 2;
-    }
 
     final devicesOne = prefs.getStringList("devicesOne");
     if (devicesOne == null) {
@@ -188,11 +185,11 @@ class _MainTabsState extends State<MainTabs>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var jsonString = jsonEncode(d.data.toJson());
     if (page == 0) {
-      var devicesOne = prefs.getStringList("devicesOne");
+      var devicesOne = prefs.getStringList("devicesOne")!;
       devicesOne.add(jsonString);
       prefs.setStringList("devicesOne", devicesOne);
     } else {
-      var devicesTwo = prefs.getStringList("devicesTwo");
+      var devicesTwo = prefs.getStringList("devicesTwo")!;
       devicesTwo.add(jsonString);
       prefs.setStringList("devicesTwo", devicesTwo);
     }
@@ -217,28 +214,28 @@ class _MainTabsState extends State<MainTabs>
 
   Future<void> _reorderFirstList(int oldIndex, int newIndex) async {
     setState(() {
-      final Widget tmp = firstList.removeAt(oldIndex);
+      final DeviceControl tmp = firstList.removeAt(oldIndex);
       if (newIndex > oldIndex) {
         newIndex -= 1;
       }
       firstList.insert(newIndex, tmp);
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var list = prefs.getStringList("devicesOne");
+    var list = prefs.getStringList("devicesOne")!;
     list.insert(newIndex, list.removeAt(oldIndex));
     prefs.setStringList("devicesOne", list);
   }
 
   Future<void> _reorderSecondList(int oldIndex, int newIndex) async {
     setState(() {
-      final Widget tmp = secondList.removeAt(oldIndex);
+      final DeviceControl tmp = secondList.removeAt(oldIndex);
       if (newIndex > oldIndex) {
         newIndex -= 1;
       }
       secondList.insert(newIndex, tmp);
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var list = prefs.getStringList("devicesTwo");
+    var list = prefs.getStringList("devicesTwo")!;
     list.insert(newIndex, list.removeAt(oldIndex));
     prefs.setStringList("devicesTwo", list);
   }
@@ -265,11 +262,11 @@ class _MainTabsState extends State<MainTabs>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var jsonString = jsonEncode(d.data.toJson());
     if (page == 0) {
-      var devicesOne = prefs.getStringList("devicesOne");
+      var devicesOne = prefs.getStringList("devicesOne")!;
       devicesOne.remove(jsonString);
       prefs.setStringList("devicesOne", devicesOne);
     } else {
-      var devicesTwo = prefs.getStringList("devicesTwo");
+      var devicesTwo = prefs.getStringList("devicesTwo")!;
       devicesTwo.remove(jsonString);
       prefs.setStringList("devicesTwo", devicesTwo);
     }
