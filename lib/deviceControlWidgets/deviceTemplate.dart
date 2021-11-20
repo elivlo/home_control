@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:home_control/communication/communication.dart';
-import 'package:string_validator/string_validator.dart';
 
 import '../MainTabWidget.dart';
 
@@ -11,7 +10,7 @@ class DeviceData {
   final String hostname;
   final int page;
   final String type;
-  final Map<String, dynamic> config;
+  final Map<String, dynamic>? config;
 
   DeviceData(this.name, this.hostname, this.page, this.config, this.type);
 
@@ -35,42 +34,42 @@ class DeviceData {
 abstract class DeviceControl extends StatefulWidget {
   final DeviceData data;
 
-  DeviceControl({Key key, @required this.data}) : super(key: key);
+  DeviceControl({required Key key, required this.data}) : super(key: key);
 
   Map<String, dynamic> toJson() => data.toJson();
 }
 
 // DeviceControlState Widget Base for all Devices to control
-abstract class DeviceControlState<T extends DeviceControl> extends State<T> with AutomaticKeepAliveClientMixin {
-  Timer poller;
-  CommunicationHandler server;
+abstract class DeviceControlState<T extends DeviceControl> extends State<T>
+    with AutomaticKeepAliveClientMixin {
+  var timerTime = -1;
+  Timer? poller;
+  CommunicationHandler? server;
 
   void setupCommunicationHandler();
 
   void pollDeviceStatus();
 
   void startTimer(int sec) {
-    if (poller != null) {
-      poller.cancel();
-    }
-    if (sec > 0) {
-      poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
-        pollDeviceStatus();
-      });
+    if (sec != timerTime) {
+      timerTime = sec;
+      poller?.cancel();
+      if (sec > 0) {
+        poller = Timer.periodic(Duration(seconds: sec), (Timer t) {
+          pollDeviceStatus();
+        });
+      }
     }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final HomeController h = HomeController.of(context);
-    if (h != null) {
-      if (!h.wifiConnection) {
-        poller.cancel();
-      } else if (h.pollingTime > 0) {
-        startTimer(h.pollingTime);
-      }
+    final HomeController? h = HomeController.of(context);
+    if (!h!.wifiConnection) {
+      poller?.cancel();
     }
+    startTimer(h.pollingTime);
   }
 
   @override
@@ -80,12 +79,11 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
     Timer.run(() {
       pollDeviceStatus();
     });
-    startTimer(2);
   }
 
   @override
   void dispose() {
-    poller.cancel();
+    poller?.cancel();
     super.dispose();
   }
 
@@ -95,7 +93,7 @@ abstract class DeviceControlState<T extends DeviceControl> extends State<T> with
 
 // DeviceConfig Widget Base for add/setup DeviceControl to List
 abstract class DeviceConfig {
-  DeviceConfig({@required this.page});
+  DeviceConfig({required this.page});
 
   final int page;
   void createDeviceControl(BuildContext context, String name, String hostname);

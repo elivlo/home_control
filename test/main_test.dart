@@ -9,6 +9,5 @@ void main() {
     await tester.pumpWidget(MyApp());
 
     expect(find.byType(MainTabs), findsOneWidget);
-
   });
 }

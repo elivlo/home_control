@@ -13,61 +13,55 @@ class TasmotaHTTPConnector extends CommunicationHandler {
 
   @override
   Future<bool> getStateBool(int relayNumber) async {
-    bool state = false;
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d", [relayNumber])});
-    Future<http.Response> resp = http.get(uri);
-
-    await resp.then((value) => {
-      if (value.body.contains("ON")){
-        state = true
-      }
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Power%d", [relayNumber])
     });
-    return state;
+    return http.get(uri).then((value) {
+      if (value.body.contains("ON")) {
+        return true;
+      }
+      return false;
+    });
   }
 
   @override
   Future<bool> setStateBool(int relayNumber, bool on) async {
-    bool state = false;
-    Future<http.Response> resp;
+    String state;
     if (on) {
-      Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d On", [relayNumber])});
-      resp = http.get(uri);
+      state = "On";
     } else {
-      Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d Off", [relayNumber])});
-      resp = http.get(uri);
+      state = "Off";
     }
-
-    await resp.then((value) => {
-      if (value.body.contains("ON")){
-        state = true
-      }
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Power%d %s", [relayNumber, state])
     });
-    return state;
+    return http.get(uri).then((value) {
+      if (value.body.contains("ON")) {
+        return true;
+      }
+      return false;
+    });
   }
 
   @override
   Future<int> getDimmState(int relayNumber) async {
-    Map<String, dynamic> result;
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Channel%d", [relayNumber])});
-    Future<http.Response> resp = http.get(uri);
-
-    await resp.then((value) => {
-      result = jsonDecode(value.body)
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Channel%d", [relayNumber])
     });
-    return result[sprintf("Channel%d", [relayNumber])];
+    return http.get(uri).then((value) {
+      var result = jsonDecode(value.body);
+      return result[sprintf("Channel%d", [relayNumber])];
+    });
   }
 
   @override
   Future<int> setDimmState(int relayNumber, int dimmState) async {
-    Map<String, dynamic> result;
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Channel%d %d", [relayNumber, dimmState])});
-    Future<http.Response> resp = http.get(uri);
-
-    await resp.then((value) => {
-      result = jsonDecode(value.body)
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Channel%d %d", [relayNumber, dimmState])
     });
-
-
-    return result[sprintf("Channel%d", [relayNumber])];
+    return http.get(uri).then((value) {
+      var result = jsonDecode(value.body);
+      return result[sprintf("Channel%d", [relayNumber])];
+    });
   }
 }
