@@ -4,7 +4,7 @@ import 'package:home_control/MainTabWidget.dart';
 
 void main() {
   test("Test HomeController", () {
-    final con = HomeController(pollingTime: 2, wifiConnection: true, addItem: null, changePollingTimer: null, removeItem: null, child: Text(""));
+    final con = HomeController(pollingTime: 2, wifiConnection: true, addItem: (i, deviceControl){}, changePollingTimer: (i){}, removeItem: (i, deviceControl){}, child: Text(""));
     expect(true, con.wifiConnection);
     expect(2, con.pollingTime);
 
