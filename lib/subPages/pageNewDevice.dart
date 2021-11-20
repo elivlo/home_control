@@ -93,11 +93,15 @@ class _NewDevicePage extends State<NewDevicePage> {
   }
 
   continued() {
-    _currentStep < 1 ? setState(() => _currentStep += 1) : null;
+    if (_currentStep < 1) {
+      setState(() => _currentStep += 1);
+    }
   }
 
   cancel() {
-    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
+    if (_currentStep > 0) {
+      setState(() => _currentStep -= 1);
+    }
   }
 
   Wrap chipList() {
