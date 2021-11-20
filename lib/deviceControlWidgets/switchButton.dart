@@ -109,7 +109,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
             ),
             IconButton(
               icon: Icon(Icons.settings),
-              onPressed: () {  }, // TODO
+              onPressed: () {}, // TODO
             )
           ],
         ),
@@ -139,8 +139,8 @@ class SimpleSwitchConfig extends DeviceConfig {
 
   @override
   void createDeviceControl(BuildContext context, String name, String hostname) {
-    var data =
-    DeviceData(name, hostname, page, {"tasmota": _tasmota}, SimpleSwitch.deviceType);
+    var data = DeviceData(
+        name, hostname, page, {"tasmota": _tasmota}, SimpleSwitch.deviceType);
     Navigator.pop(
         context,
         SimpleSwitch(
@@ -166,5 +166,4 @@ class SimpleSwitchConfig extends DeviceConfig {
       ],
     );
   }
-
 }

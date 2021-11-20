@@ -127,7 +127,7 @@ class OnePhaseDimmerState extends DeviceControlState<OnePhaseDimmer> {
             ),
             IconButton(
               icon: Icon(Icons.settings),
-              onPressed: () {  }, // TODO
+              onPressed: () {}, // TODO
             )
           ],
         ),

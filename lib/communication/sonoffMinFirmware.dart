@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:home_control/communication/communication.dart';
 
 // SonoffMinFirmware to controll my MinSonoffBasicFirmware
-class SonoffMinFirmware extends CommunicationHandler{
+class SonoffMinFirmware extends CommunicationHandler {
   SonoffMinFirmware(String hostname, int port) : super(hostname, port);
 
   @override
@@ -19,7 +19,7 @@ class SonoffMinFirmware extends CommunicationHandler{
         return true;
       }
       return false;
-    }, onError: (err){
+    }, onError: (err) {
       socket.close();
       throw err;
     });
@@ -41,7 +41,7 @@ class SonoffMinFirmware extends CommunicationHandler{
         return true;
       }
       return false;
-    }, onError: (err){
+    }, onError: (err) {
       socket.close();
       throw err;
     });

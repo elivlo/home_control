@@ -40,7 +40,8 @@ abstract class DeviceControl extends StatefulWidget {
 }
 
 // DeviceControlState Widget Base for all Devices to control
-abstract class DeviceControlState<T extends DeviceControl> extends State<T> with AutomaticKeepAliveClientMixin {
+abstract class DeviceControlState<T extends DeviceControl> extends State<T>
+    with AutomaticKeepAliveClientMixin {
   var timerTime = -1;
   Timer? poller;
   CommunicationHandler? server;

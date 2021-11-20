@@ -33,7 +33,6 @@ class OwnStepper extends OriginalStepper {
 }
 
 class OwnStepperState extends OriginalStepperState {
-
   @override
   Widget _buildVerticalBody(int index) {
     return Stack(
@@ -72,7 +71,9 @@ class OwnStepperState extends OriginalStepperState {
           firstCurve: const Interval(0.0, 0.6, curve: Curves.fastOutSlowIn),
           secondCurve: const Interval(0.4, 1.0, curve: Curves.fastOutSlowIn),
           sizeCurve: Curves.fastOutSlowIn,
-          crossFadeState: super.isCurrent(index) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          crossFadeState: super.isCurrent(index)
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
           duration: kThemeAnimationDuration,
         ),
       ],

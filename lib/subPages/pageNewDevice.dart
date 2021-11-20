@@ -36,72 +36,68 @@ class _NewDevicePage extends State<NewDevicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Add new device"),
-      ),
-      body: Container(
-        child: Stepper(
-          type: StepperType.vertical,
-          physics: ScrollPhysics(),
-          currentStep: _currentStep,
-          onStepTapped: (step) => tapped(step),
-          onStepContinue: continued,
-          onStepCancel: cancel,
-          elevation: 0,
-          controlsBuilder: (BuildContext context, {onStepContinue, onStepCancel}) {
-            return Row(
-              children: [],
-            );
-          },
-          steps: [
-            Step(
-              title: Text("Device Selector"),
-              content: chipList()
-            ),
-            Step(
-              title: Text("Device Settings"),
-              content: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: name,
-                      decoration: const InputDecoration(
-                        hintText: "Device name",
-                      ),
-                      validator: _validateName,
-                    ),
-                    TextFormField(
-                      controller: hostname,
-                      decoration: const InputDecoration(hintText: "Hostname / IP"),
-                      validator: _validateHostname,
-                    ),
-                    config!.customConfigWidgets(setState)
-                  ],
-                ),
-              )
-            )
-          ],
+        appBar: AppBar(
+          title: Text("Add new device"),
         ),
-      ),
-      floatingActionButton: _floatingButton(context)
-    );
+        body: Container(
+          child: Stepper(
+            type: StepperType.vertical,
+            physics: ScrollPhysics(),
+            currentStep: _currentStep,
+            onStepTapped: (step) => tapped(step),
+            onStepContinue: continued,
+            onStepCancel: cancel,
+            elevation: 0,
+            controlsBuilder: (BuildContext context,
+                {onStepContinue, onStepCancel}) {
+              return Row(
+                children: [],
+              );
+            },
+            steps: [
+              Step(title: Text("Device Selector"), content: chipList()),
+              Step(
+                  title: Text("Device Settings"),
+                  content: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: name,
+                          decoration: const InputDecoration(
+                            hintText: "Device name",
+                          ),
+                          validator: _validateName,
+                        ),
+                        TextFormField(
+                          controller: hostname,
+                          decoration:
+                              const InputDecoration(hintText: "Hostname / IP"),
+                          validator: _validateHostname,
+                        ),
+                        config!.customConfigWidgets(setState)
+                      ],
+                    ),
+                  ))
+            ],
+          ),
+        ),
+        floatingActionButton: _floatingButton(context));
   }
 
-  tapped(int step){
+  tapped(int step) {
     if (step == 0) {
       setState(() => _currentStep = step);
     }
   }
 
-  continued(){
-    _currentStep < 1 ?
-    setState(() => _currentStep += 1): null;
+  continued() {
+    _currentStep < 1 ? setState(() => _currentStep += 1) : null;
   }
-  cancel(){
-    _currentStep > 0 ?
-    setState(() => _currentStep -= 1) : null;
+
+  cancel() {
+    _currentStep > 0 ? setState(() => _currentStep -= 1) : null;
   }
 
   Wrap chipList() {
@@ -125,10 +121,7 @@ class _NewDevicePage extends State<NewDevicePage> {
       label: Text(
         label,
         style: TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w500
-        ),
+            color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
       ),
       backgroundColor: Colors.deepOrange,
       elevation: 2,
@@ -177,5 +170,4 @@ class _NewDevicePage extends State<NewDevicePage> {
     }
     return null;
   }
-
 }

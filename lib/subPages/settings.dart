@@ -19,7 +19,6 @@ class Settings extends StatefulWidget {
 }
 
 class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
-
   String info = "";
 
   @override
@@ -30,7 +29,11 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
 
   void getInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    info = packageInfo.appName + ": v" + packageInfo.version + " Build: " + packageInfo.buildNumber;
+    info = packageInfo.appName +
+        ": v" +
+        packageInfo.version +
+        " Build: " +
+        packageInfo.buildNumber;
   }
 
   @override
@@ -39,23 +42,28 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
     final HomeController? h = HomeController.of(context);
 
     return Container(
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: 20),
-          children: [
-            Container(
-              alignment: Alignment(0, 0),
-              child: Text("Settings", textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-              height: 40,
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 20),
+        children: [
+          Container(
+            alignment: Alignment(0, 0),
+            child: Text(
+              "Settings",
+              textAlign: TextAlign.left,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
-            Container(
-              alignment: Alignment(0, 0),
-              color: Colors.grey.shade200,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text("Polling Interval: ", textAlign: TextAlign.center),
-                  ),
-                  Flexible(
+            height: 40,
+          ),
+          Container(
+            alignment: Alignment(0, 0),
+            color: Colors.grey.shade200,
+            child: Row(
+              children: [
+                Expanded(
+                  child:
+                      Text("Polling Interval: ", textAlign: TextAlign.center),
+                ),
+                Flexible(
                     flex: 1,
                     child: TextFormField(
                       textAlign: TextAlign.center,
@@ -63,50 +71,53 @@ class SettingsState extends State<Settings> with AutomaticKeepAliveClientMixin {
                       decoration: const InputDecoration(
                         hintText: "Polling time in seconds",
                       ),
-                      onChanged: (value){
+                      onChanged: (value) {
                         var pollingTime = int.tryParse(value);
                         h?.changePollingTimer(pollingTime);
                       },
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       autovalidateMode: AutovalidateMode.always,
-                    )
-                  ),
-                ],
-              ),
-              height: 40,
+                    )),
+              ],
             ),
-            Container(
-              alignment: Alignment(0, 0),
-              child: Text(h!.wifiConnection ? "Wifi connection: Polling active" : "No Wifi connection: Polling inactive", textAlign: TextAlign.center),
-              height: 40,
-            ),
-            Container(
-              alignment: Alignment(0, 0),
-              color: Colors.grey.shade200,
-              child: Text(info, textAlign: TextAlign.center),
-              height: 40,
-            ),
-            Container(
-              alignment: Alignment(0, 0),
-              child: RichText(text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: Settings.owner + " - ",
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  TextSpan(
+            height: 40,
+          ),
+          Container(
+            alignment: Alignment(0, 0),
+            child: Text(
+                h!.wifiConnection
+                    ? "Wifi connection: Polling active"
+                    : "No Wifi connection: Polling inactive",
+                textAlign: TextAlign.center),
+            height: 40,
+          ),
+          Container(
+            alignment: Alignment(0, 0),
+            color: Colors.grey.shade200,
+            child: Text(info, textAlign: TextAlign.center),
+            height: 40,
+          ),
+          Container(
+            alignment: Alignment(0, 0),
+            child: RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: Settings.owner + " - ",
+                  style: TextStyle(color: Colors.black),
+                ),
+                TextSpan(
                     text: Settings.gitproject,
                     style: TextStyle(color: Colors.blue),
-                    recognizer: TapGestureRecognizer()..onTap = () {
-                      _launchBrowser(Settings.gitproject);
-                    }
-                  )
-                ]
-              ),),
-              height: 40,
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        _launchBrowser(Settings.gitproject);
+                      })
+              ]),
             ),
-          ],
-        ),
+            height: 40,
+          ),
+        ],
+      ),
     );
   }
 

@@ -13,9 +13,11 @@ class TasmotaHTTPConnector extends CommunicationHandler {
 
   @override
   Future<bool> getStateBool(int relayNumber) async {
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d", [relayNumber])});
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Power%d", [relayNumber])
+    });
     return http.get(uri).then((value) {
-      if (value.body.contains("ON")){
+      if (value.body.contains("ON")) {
         return true;
       }
       return false;
@@ -30,9 +32,11 @@ class TasmotaHTTPConnector extends CommunicationHandler {
     } else {
       state = "Off";
     }
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Power%d %s", [relayNumber, state])});
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Power%d %s", [relayNumber, state])
+    });
     return http.get(uri).then((value) {
-      if (value.body.contains("ON")){
+      if (value.body.contains("ON")) {
         return true;
       }
       return false;
@@ -41,7 +45,9 @@ class TasmotaHTTPConnector extends CommunicationHandler {
 
   @override
   Future<int> getDimmState(int relayNumber) async {
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Channel%d", [relayNumber])});
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Channel%d", [relayNumber])
+    });
     return http.get(uri).then((value) {
       var result = jsonDecode(value.body);
       return result[sprintf("Channel%d", [relayNumber])];
@@ -50,7 +56,9 @@ class TasmotaHTTPConnector extends CommunicationHandler {
 
   @override
   Future<int> setDimmState(int relayNumber, int dimmState) async {
-    Uri uri = Uri.http(hostname, "/cm", {"cmnd": sprintf("Channel%d %d", [relayNumber, dimmState])});
+    Uri uri = Uri.http(hostname, "/cm", {
+      "cmnd": sprintf("Channel%d %d", [relayNumber, dimmState])
+    });
     return http.get(uri).then((value) {
       var result = jsonDecode(value.body);
       return result[sprintf("Channel%d", [relayNumber])];
