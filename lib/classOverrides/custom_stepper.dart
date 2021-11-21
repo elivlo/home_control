@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'originalStepper.dart';
+import 'original_stepper.dart';
 
 class OwnStepper extends OriginalStepper {
   const OwnStepper({

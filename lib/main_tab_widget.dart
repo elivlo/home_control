@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
-import 'package:home_control/deviceControlWidgets/onePhaseDimmer.dart';
-import 'package:home_control/deviceControlWidgets/switchButton.dart';
+import 'package:home_control/deviceControlWidgets/device_template.dart';
+import 'package:home_control/deviceControlWidgets/one_phase_dimmer.dart';
+import 'package:home_control/deviceControlWidgets/switch_button.dart';
 
-import 'package:home_control/subPages/pageNewDevice.dart';
+import 'package:home_control/subPages/page_new_device.dart';
 import 'package:home_control/subPages/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
@@ -20,15 +21,15 @@ class HomeController extends InheritedWidget {
 
   final bool wifiConnection;
   final int pollingTime;
-
   const HomeController(
-      {required this.addItem,
+      {Key? key,
+      required this.addItem,
       required this.removeItem,
       required this.changePollingTimer,
       required this.wifiConnection,
       required this.pollingTime,
       required Widget child})
-      : super(child: child);
+      : super(key: key, child: child);
 
   static HomeController? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<HomeController>();
@@ -45,6 +46,8 @@ class HomeController extends InheritedWidget {
 
 // MainTabs shows two Tabs for Devices and one settings tab
 class MainTabs extends StatefulWidget {
+  const MainTabs({Key? key}) : super(key: key);
+
   @override
   _MainTabsState createState() => _MainTabsState();
 }
@@ -55,7 +58,7 @@ class _MainTabsState extends State<MainTabs>
 
   int _pollingTime = 0;
   bool _wifiConnection = true;
-  var connection;
+  late StreamSubscription connection;
 
   List<DeviceControl> firstList = [];
   List<DeviceControl> secondList = [];
@@ -93,7 +96,7 @@ class _MainTabsState extends State<MainTabs>
         appBar: AppBar(
           title: TabBar(
             controller: _tabController,
-            tabs: [
+            tabs: const [
               Tab(
                 icon: Icon(Icons.house_rounded),
               ),
@@ -125,7 +128,7 @@ class _MainTabsState extends State<MainTabs>
                 children: secondList,
                 onReorder: _reorderSecondList,
               ),
-              Settings(),
+              const Settings(),
             ],
           ),
         ),
@@ -140,13 +143,13 @@ class _MainTabsState extends State<MainTabs>
       return null;
     } else {
       return FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         elevation: 3.0,
         mini: true,
         onPressed: () async {
           var device = await Navigator.push(context,
               MaterialPageRoute(builder: (BuildContext context) {
-            return NewDevicePage(_tabController!.index);
+            return NewDevicePage(page: _tabController!.index);
           }));
           if (device is DeviceControl) {
             _addControlItem(device.data.page, device);
@@ -160,7 +163,7 @@ class _MainTabsState extends State<MainTabs>
   void _loadConfig() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var time = prefs.getInt("polling_time");
-    _pollingTime = time != null ? time : 2;
+    _pollingTime = time ?? 2;
     if (_pollingTime.isNaN) _pollingTime = 2;
 
     final devicesOne = prefs.getStringList("devicesOne");
@@ -173,7 +176,7 @@ class _MainTabsState extends State<MainTabs>
           firstList.add(_loadFromJson(jsonDecode(device)));
           save.add(device);
         } on MissingPluginException {
-          print("Remove " + device.toString());
+          debugPrint("Remove " + device.toString());
         }
       }
       prefs.setStringList("devicesOne", save);
@@ -189,7 +192,7 @@ class _MainTabsState extends State<MainTabs>
           secondList.add(_loadFromJson(jsonDecode(device)));
           save.add(device);
         } on MissingPluginException {
-          print("Remove " + device.toString());
+          debugPrint("Remove " + device.toString());
         }
       }
       prefs.setStringList("devicesTwo", save);
@@ -288,11 +291,11 @@ class _MainTabsState extends State<MainTabs>
   }
 
   void _changePollingTimer(int? time) async {
-    if (time == null) time = 0;
+    time ??= 0;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("polling_time", time);
     setState(() {
-      this._pollingTime = time!;
+      _pollingTime = time!;
     });
   }
 }

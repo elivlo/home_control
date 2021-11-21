@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:home_control/MainTabWidget.dart';
-import 'package:home_control/communication/sonoffMinFirmware.dart';
+import 'package:home_control/main_tab_widget.dart';
+import 'package:home_control/communication/sonoff_min_firmware.dart';
 import 'package:home_control/communication/tasmota.dart';
-import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
+import 'package:home_control/deviceControlWidgets/device_template.dart';
 
 // SimpleSwitch Widget to use with Tasmota (Sonoff Basic) when only on or off is needed
 // Also for use with my MinSonoffBasicFirmware
@@ -10,7 +10,7 @@ class SimpleSwitch extends DeviceControl {
   static const deviceType = "SimpleSwitch";
   static const deviceLabel = "Switch";
 
-  SimpleSwitch({
+  const SimpleSwitch({
     required Key key,
     required data,
   }) : super(key: key, data: data);
@@ -41,7 +41,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
   void pollDeviceStatus() async {
     if (server != null) {
       var resp = await server?.getStateBool(1);
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           if (resp != null) {
             state = resp;
@@ -65,8 +65,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
       });
     }
 
-    return Container(
-        child: ExpansionTile(
+    return ExpansionTile(
       childrenPadding:
           const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
       title: Row(
@@ -79,7 +78,7 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
                     widget.data.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
@@ -104,30 +103,30 @@ class SwitchButtonState extends DeviceControlState<SimpleSwitch> {
       children: [
         Row(
           children: [
-            Expanded(
+            const Expanded(
               child: Text("Edit"),
             ),
             IconButton(
-              icon: Icon(Icons.settings),
+              icon: const Icon(Icons.settings),
               onPressed: () {}, // TODO
             )
           ],
         ),
         Row(
           children: [
-            Expanded(
+            const Expanded(
               child: Text("Delete"),
             ),
             IconButton(
-              icon: Icon(Icons.delete),
+              icon: const Icon(Icons.delete),
               onPressed: () {
-                h?.removeItem(widget.data.page, this.widget);
+                h?.removeItem(widget.data.page, widget);
               },
             )
           ],
         )
       ],
-    ));
+    );
   }
 }
 
@@ -150,10 +149,10 @@ class SimpleSwitchConfig extends DeviceConfig {
   }
 
   @override
-  Widget customConfigWidgets(void setState(void Function() fn)) {
+  Widget customConfigWidgets(void Function(void Function() fn) setState) {
     return Row(
       children: [
-        Text("Tasmota:"),
+        const Text("Tasmota:"),
         Switch.adaptive(
           value: _tasmota,
           activeColor: Colors.amber,

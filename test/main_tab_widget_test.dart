@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:home_control/MainTabWidget.dart';
+import 'package:home_control/main_tab_widget.dart';
 
 void main() {
   test("Test HomeController", () {
@@ -10,7 +10,7 @@ void main() {
         addItem: (i, deviceControl) {},
         changePollingTimer: (i) {},
         removeItem: (i, deviceControl) {},
-        child: Text(""));
+        child: const Text(""));
     expect(true, con.wifiConnection);
     expect(2, con.pollingTime);
 
@@ -19,7 +19,7 @@ void main() {
 
   testWidgets('Test Main Tabs', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MediaQuery(
+    await tester.pumpWidget(const MediaQuery(
       data: MediaQueryData(),
       child: MaterialApp(
         home: MainTabs(),

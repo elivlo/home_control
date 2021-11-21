@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:home_control/MainTabWidget.dart';
+import 'package:home_control/main_tab_widget.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
-      home: MainTabs(),
+      home: const MainTabs(),
     );
   }
 }
