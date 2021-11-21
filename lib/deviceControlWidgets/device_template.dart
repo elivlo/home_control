@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:home_control/communication/communication.dart';
 
-import '../MainTabWidget.dart';
+import '../main_tab_widget.dart';
 
 class DeviceData {
   final String name;
@@ -34,7 +34,7 @@ class DeviceData {
 abstract class DeviceControl extends StatefulWidget {
   final DeviceData data;
 
-  DeviceControl({required Key key, required this.data}) : super(key: key);
+  const DeviceControl({required Key key, required this.data}) : super(key: key);
 
   Map<String, dynamic> toJson() => data.toJson();
 }
@@ -98,5 +98,5 @@ abstract class DeviceConfig {
   final int page;
   void createDeviceControl(BuildContext context, String name, String hostname);
 
-  Widget customConfigWidgets(void setState(void Function() fn));
+  Widget customConfigWidgets(void Function(void Function() fn) setState);
 }

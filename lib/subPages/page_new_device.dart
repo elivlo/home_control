@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:home_control/deviceControlWidgets/deviceTemplate.dart';
-import 'package:home_control/deviceControlWidgets/onePhaseDimmer.dart';
-import 'package:home_control/deviceControlWidgets/switchButton.dart';
+import 'package:home_control/deviceControlWidgets/device_template.dart';
+import 'package:home_control/deviceControlWidgets/one_phase_dimmer.dart';
+import 'package:home_control/deviceControlWidgets/switch_button.dart';
 import 'package:string_validator/string_validator.dart';
 
 // NewDevicePage Widget shown when clicked on FloatingActionButton
 class NewDevicePage extends StatefulWidget {
-  NewDevicePage(this.page);
+  const NewDevicePage({Key? key, required this.page}) : super(key: key);
 
   final int page;
 
@@ -37,51 +37,49 @@ class _NewDevicePage extends State<NewDevicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Add new device"),
+          title: const Text("Add new device"),
         ),
-        body: Container(
-          child: Stepper(
-            type: StepperType.vertical,
-            physics: ScrollPhysics(),
-            currentStep: _currentStep,
-            onStepTapped: (step) => tapped(step),
-            onStepContinue: continued,
-            onStepCancel: cancel,
-            elevation: 0,
-            controlsBuilder: (BuildContext context,
-                {onStepContinue, onStepCancel}) {
-              return Row(
-                children: [],
-              );
-            },
-            steps: [
-              Step(title: Text("Device Selector"), content: chipList()),
-              Step(
-                  title: Text("Device Settings"),
-                  content: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: name,
-                          decoration: const InputDecoration(
-                            hintText: "Device name",
-                          ),
-                          validator: _validateName,
+        body: Stepper(
+          type: StepperType.vertical,
+          physics: const ScrollPhysics(),
+          currentStep: _currentStep,
+          onStepTapped: (step) => tapped(step),
+          onStepContinue: continued,
+          onStepCancel: cancel,
+          elevation: 0,
+          controlsBuilder: (BuildContext context,
+              {onStepContinue, onStepCancel}) {
+            return Row(
+              children: const [],
+            );
+          },
+          steps: [
+            Step(title: const Text("Device Selector"), content: chipList()),
+            Step(
+                title: const Text("Device Settings"),
+                content: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: name,
+                        decoration: const InputDecoration(
+                          hintText: "Device name",
                         ),
-                        TextFormField(
-                          controller: hostname,
-                          decoration:
-                              const InputDecoration(hintText: "Hostname / IP"),
-                          validator: _validateHostname,
-                        ),
-                        config!.customConfigWidgets(setState)
-                      ],
-                    ),
-                  ))
-            ],
-          ),
+                        validator: _validateName,
+                      ),
+                      TextFormField(
+                        controller: hostname,
+                        decoration:
+                            const InputDecoration(hintText: "Hostname / IP"),
+                        validator: _validateHostname,
+                      ),
+                      config!.customConfigWidgets(setState)
+                    ],
+                  ),
+                ))
+          ],
         ),
         floatingActionButton: _floatingButton(context));
   }
@@ -124,12 +122,12 @@ class _NewDevicePage extends State<NewDevicePage> {
       avatar: null,
       label: Text(
         label,
-        style: TextStyle(
+        style: const TextStyle(
             color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
       ),
       backgroundColor: Colors.deepOrange,
       elevation: 2,
-      padding: EdgeInsets.all(2),
+      padding: const EdgeInsets.all(2),
       onPressed: () {
         config = conf;
         continued();
@@ -140,7 +138,7 @@ class _NewDevicePage extends State<NewDevicePage> {
   Widget? _floatingButton(BuildContext context) {
     if (_currentStep == 1) {
       return FloatingActionButton(
-        child: Icon(Icons.check),
+        child: const Icon(Icons.check),
         elevation: 3.0,
         onPressed: () {
           if (_formKey.currentState!.validate()) {

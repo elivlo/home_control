@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:home_control/MainTabWidget.dart';
+import 'package:home_control/main_tab_widget.dart';
 import 'package:home_control/subPages/settings.dart';
 
 void main() {
   testWidgets('Test Settings Tab', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    Settings settings = Settings();
+    Settings settings = const Settings();
     await tester.pumpWidget(MediaQuery(
-      data: MediaQueryData(),
+      data: const MediaQueryData(),
       child: MaterialApp(
           home: Scaffold(
         body: HomeController(

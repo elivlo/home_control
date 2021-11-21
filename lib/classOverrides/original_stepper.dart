@@ -282,8 +282,9 @@ abstract class OriginalStepperState extends State<OriginalStepper>
       (int i) => GlobalKey(),
     );
 
-    for (int i = 0; i < widget.steps.length; i += 1)
+    for (int i = 0; i < widget.steps.length; i += 1) {
       _oldStates[i] = widget.steps[i].state;
+    }
   }
 
   @override
@@ -291,8 +292,9 @@ abstract class OriginalStepperState extends State<OriginalStepper>
     super.didUpdateWidget(oldWidget);
     assert(widget.steps.length == oldWidget.steps.length);
 
-    for (int i = 0; i < oldWidget.steps.length; i += 1)
+    for (int i = 0; i < oldWidget.steps.length; i += 1) {
       _oldStates[i] = oldWidget.steps[i].state;
+    }
   }
 
   bool _isFirst(int index) {
@@ -422,18 +424,20 @@ abstract class OriginalStepperState extends State<OriginalStepper>
         duration: kThemeAnimationDuration,
       );
     } else {
-      if (widget.steps[index].state != StepState.error)
+      if (widget.steps[index].state != StepState.error) {
         return _buildCircle(index, false);
-      else
+      } else {
         return _buildTriangle(index, false);
+      }
     }
   }
 
   Widget buildVerticalControls() {
-    if (widget.controlsBuilder != null)
+    if (widget.controlsBuilder != null) {
       return widget.controlsBuilder!(context,
           onStepContinue: widget.onStepContinue,
           onStepCancel: widget.onStepCancel);
+    }
 
     final Color cancelColor;
     switch (Theme.of(context).brightness) {
@@ -743,13 +747,14 @@ abstract class OriginalStepperState extends State<OriginalStepper>
     assert(debugCheckHasMaterial(context));
     assert(debugCheckHasMaterialLocalizations(context));
     assert(() {
-      if (context.findAncestorWidgetOfExactType<OriginalStepper>() != null)
+      if (context.findAncestorWidgetOfExactType<OriginalStepper>() != null) {
         throw FlutterError(
           'Steppers must not be nested.\n'
           'The material specification advises that one should avoid embedding '
           'steppers within steppers. '
           'https://material.io/archive/guidelines/components/steppers.html#steppers-usage',
         );
+      }
       return true;
     }());
     switch (widget.type) {
