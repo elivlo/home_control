@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - flutter_test
-    #if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
       - name: Cache Flutter dependencies
